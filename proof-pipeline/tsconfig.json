@@ -10,8 +10,10 @@
     "outDir": "dist",
     "rootDir": ".",
     "resolveJsonModule": true,
-    "types": ["node", "jest"],
+    "types": ["node"],
     "moduleResolution": "node16",
     "isolatedModules": true
-  }
+  },
+  "include": ["src/**/*", "demo_walkthrough.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts", "end_to_end_test.ts"]
 }
