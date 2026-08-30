@@ -4,9 +4,8 @@ services:
     name: vaultbridge-backend
     runtime: node
     plan: free
-    region: oregon
     rootDir: proof-pipeline
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /health
     envVars:
