@@ -1,0 +1,20 @@
+{
+  "name": "@vaultbridge/crypto",
+  "version": "0.1.0",
+  "description": "VaultBridge privacy layer encryption and key wrapping utilities",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.9",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.2"
+  }
+}
