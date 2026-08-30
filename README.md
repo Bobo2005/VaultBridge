@@ -204,7 +204,7 @@ npm run keeper
 
 ## 📑 Repository Documentation & Specifications
 
-- 🎬 [2-Minute Video Demo Script & Pitch Deck](docs/pitch-deck.md)
+
 - 📖 [Product Requirements Specification (PRD)](docs/prd.md)
 - 🏛 [Architecture & Cryptographic Design V2](docs/architecture-v2.md)
 - 📋 [V2 Project Plan & Definition of Done](docs/project-plan-v2.md)
