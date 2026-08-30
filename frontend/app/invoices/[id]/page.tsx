@@ -15,11 +15,17 @@ import {
   decryptInvoiceClientSide,
   DecryptedInvoicePayload,
   hasAccessClient,
+  getGranteeRole,
   getLocalBundle,
   encryptInvoiceClientSide,
+  useInvoiceDecryption,
   StorageResult
 } from "../../../lib/privacy";
 import { useAccount } from "wagmi";
+import { BorrowModal } from "../../../components/loans/BorrowModal";
+import { RepayLoanModal } from "../../../components/loans/RepayLoanModal";
+import { ClaimFaucetButton } from "../../../components/wallet/ClaimFaucetButton";
+import { subscribeToBalanceUpdates } from "../../../lib/balanceCache";
 import {
   ChevronLeft,
   ExternalLink,
@@ -54,9 +60,6 @@ export default function InvoiceDetailPage() {
 
   // Multi-wallet viewer simulator for judges / tests
   const [activeViewerRole, setActiveViewerRole] = useState<"owner" | "auditor" | "unauthorized">("owner");
-  const [decryptedData, setDecryptedData] = useState<DecryptedInvoicePayload | null>(null);
-  const [isDecrypting, setIsDecrypting] = useState(false);
-  const [cacheStatus, setCacheStatus] = useState<"available" | "missing" | "restored">("available");
   const [isRestoring, setIsRestoring] = useState(false);
 
   const viewerAddresses = {
@@ -74,48 +77,50 @@ export default function InvoiceDetailPage() {
   const [activeStepText, setActiveStepText] = useState("");
   const [elapsed, setElapsed] = useState(0);
 
+  // On-chain Lending Modals
+  const [isBorrowModalOpen, setIsBorrowModalOpen] = useState(false);
+  const [isRepayModalOpen, setIsRepayModalOpen] = useState(false);
+
+  const loadInvoiceData = async () => {
+    const list = await VaultBridgeAPI.getInvoices();
+    setAllInvoices(list);
+    const found = list.find((i) => i.id === invoiceIdParam);
+    if (found) {
+      setInvoice(found);
+    } else if (list.length > 0) {
+      setInvoice(list[0]);
+    }
+  };
+
   useEffect(() => {
-    VaultBridgeAPI.getInvoices().then((list) => {
-      setAllInvoices(list);
-      const found = list.find((i) => i.id === invoiceIdParam);
-      if (found) {
-        setInvoice(found);
-      } else {
-        setInvoice(list[0]);
-      }
+    loadInvoiceData();
+    const unsubscribe = subscribeToBalanceUpdates(() => {
+      loadInvoiceData();
     });
+    return () => unsubscribe();
   }, [invoiceIdParam]);
 
-  // Decryption Read Path & Storage Check
-  useEffect(() => {
-    if (!invoice) return;
-    setIsDecrypting(true);
-
-    const storageCheck = getLocalBundle(invoice.id);
-    if (!storageCheck.success && activeViewerRole !== "unauthorized") {
-      setCacheStatus("missing");
-    } else {
-      setCacheStatus("available");
-    }
-
-    const timer = setTimeout(async () => {
-      const result = await decryptInvoiceClientSide(
-        invoice.pointer || "ipfs://default",
-        currentViewerAddress,
-        {
-          invoiceId: invoice.id,
+  // Client-Side In-Memory Decryption Hook & Access Control
+  const {
+    decryptedData,
+    isDecrypting,
+    isAuthorized,
+    cacheStatus,
+    setCacheStatus,
+    setDecryptedData,
+  } = useInvoiceDecryption(
+    invoice
+      ? {
+          id: invoice.id,
+          pointer: invoice.pointer,
           amountEth: invoice.amountEth,
           amountUsd: invoice.amountUsd,
           debtor: invoice.debtor,
           dueDateBlock: invoice.dueDateBlock,
         }
-      );
-      setDecryptedData(result);
-      setIsDecrypting(false);
-    }, 200);
-
-    return () => clearTimeout(timer);
-  }, [invoice, currentViewerAddress, activeViewerRole]);
+      : null,
+    currentViewerAddress
+  );
 
   // Manual Re-Import / Restore Handler for Incognito / Missing Cache
   const handleRestoreCache = async () => {
@@ -224,12 +229,12 @@ export default function InvoiceDetailPage() {
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-secondary hover:text-primary transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back to Invoices</span>
+          <span>Back to Receivables</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link href={`/invoices/${invoice.id}/share`}>
             <Button variant="outline" size="sm" icon={<Key className="w-4 h-4 text-primary" />}>
-              <span>Manage Access (Grant/Revoke)</span>
+              <span>Share Confidential Access</span>
             </Button>
           </Link>
           <AttestationBadge status={invoice.status} size="md" />
@@ -244,13 +249,13 @@ export default function InvoiceDetailPage() {
           </div>
           <div>
             <h4 className="text-xs font-bold text-ink flex items-center gap-2">
-              <span>Viewer Role Simulator (AccessRegistry Test Matrix)</span>
+              <span>Access & Confidentiality Matrix (Permission Simulator)</span>
               <span className="px-2 py-0.5 bg-primary-tint text-primary rounded-full font-bold text-[10px]">
                 Active Privacy Layer
               </span>
             </h4>
             <p className="text-[11px] text-ink-secondary">
-              Current Address: <code className="font-mono text-primary font-bold">{currentViewerAddress.slice(0, 10)}...{currentViewerAddress.slice(-6)}</code>
+              Active Signer / Viewer: <code className="font-mono text-primary font-bold">{currentViewerAddress.slice(0, 10)}...{currentViewerAddress.slice(-6)}</code>
             </p>
           </div>
         </div>
@@ -274,7 +279,7 @@ export default function InvoiceDetailPage() {
                 : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Granted Auditor
+            Auditor & Partner View (Permission Granted)
           </button>
           <button
             onClick={() => setActiveViewerRole("unauthorized")}
@@ -284,7 +289,7 @@ export default function InvoiceDetailPage() {
                 : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Unauthorized Wallet
+            Unauthorized Viewer (Confidential)
           </button>
         </div>
       </div>
@@ -294,7 +299,7 @@ export default function InvoiceDetailPage() {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-[0.04em] text-ink-secondary">
-              Invoice Collateral Details
+              Accounts Receivable Details
             </span>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-tint text-primary border border-primary/20">
               {invoice.riskTier || "Tier B (Standard 70%)"}
@@ -302,15 +307,15 @@ export default function InvoiceDetailPage() {
           </div>
           <h2 className="text-3xl font-bold text-ink tracking-tight">{invoice.id}</h2>
           <p className="text-xs font-mono text-ink-secondary truncate max-w-md">
-            Hex: {invoice.invoiceIdHex}
+            Receivable Commitment: {invoice.invoiceIdHex}
           </p>
         </div>
 
         <div className="flex items-baseline gap-4 md:text-right">
           <div>
-            <span className="text-xs font-semibold uppercase text-ink-secondary">Valuation</span>
+            <span className="text-xs font-semibold uppercase text-ink-secondary">Valuation & Face Value</span>
             <p className="text-3xl font-bold text-ink">${invoice.amountUsd.toLocaleString()}</p>
-            <p className="text-xs text-ink-secondary">{invoice.amountEth} ETH @ $2,700</p>
+            <p className="text-xs text-ink-secondary">{invoice.amountEth} ETH Collateral @ $2,700</p>
           </div>
         </div>
       </Card>
@@ -321,7 +326,7 @@ export default function InvoiceDetailPage() {
           <ProofProgressRing
             progressPercent={attestationPercent}
             secondsRemaining={attestationSecs}
-            statusText={activeStepText || "Polling /api/proof-status (~15s wait time)..."}
+            statusText={activeStepText || "Instant Verification Engine active (~15s settlement check)..."}
             txHash={invoice.txHash}
           />
         </section>
@@ -333,10 +338,30 @@ export default function InvoiceDetailPage() {
         <div className="lg:col-span-7 space-y-6">
           {decryptedData ? (
             <Card className="space-y-5 border-emerald-200 bg-emerald-50/20">
+              {/* Role-Specific Authorization Banner */}
+              {(() => {
+                const currentRole = getGranteeRole(invoice.id, currentViewerAddress);
+                const isAuditorOrGrantee = currentRole !== "Owner" && currentRole !== "Unauthorized";
+                if (isAuditorOrGrantee || activeViewerRole === "auditor") {
+                  return (
+                    <div className="p-3 bg-emerald-100/70 border border-emerald-300 rounded-xl flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2 text-emerald-900 font-bold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                        <span>Auditor & Partner View (Permission Granted) — Verified Access</span>
+                      </div>
+                      <span className="px-2 py-0.5 bg-emerald-200 text-emerald-900 font-mono text-[10px] font-bold rounded-full shrink-0">
+                        Encrypted Key Unwrapped
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
               <div className="flex items-center justify-between border-b border-emerald-200/80 pb-3">
                 <div className="flex items-center gap-2 text-emerald-800 font-bold">
                   <ShieldCheck className="w-5 h-5 text-success" />
-                  <span>Confidential Invoice Payload (Decrypted Client-Side)</span>
+                  <span>Confidential Trade Payload (Decrypted Client-Side)</span>
                 </div>
                 <span className="px-2 py-0.5 bg-success-tint text-success font-bold text-[10px] rounded-full">
                   AES-256-GCM Verified
@@ -348,7 +373,7 @@ export default function InvoiceDetailPage() {
                   <div className="p-3 bg-surface rounded-xl border border-border space-y-1">
                     <span className="text-ink-secondary font-medium flex items-center gap-1">
                       <Building2 className="w-3.5 h-3.5 text-primary" />
-                      Debtor Enterprise
+                      Buyer Enterprise
                     </span>
                     <p className="font-bold text-ink">{decryptedData.debtorCompany}</p>
                   </div>
@@ -356,7 +381,7 @@ export default function InvoiceDetailPage() {
                   <div className="p-3 bg-surface rounded-xl border border-border space-y-1">
                     <span className="text-ink-secondary font-medium flex items-center gap-1">
                       <CreditCard className="w-3.5 h-3.5 text-primary" />
-                      Escrow Settlement IBAN
+                      Settlement Escrow Account
                     </span>
                     <p className="font-mono font-bold text-ink">{decryptedData.bankIBAN}</p>
                   </div>
@@ -364,7 +389,7 @@ export default function InvoiceDetailPage() {
 
                 <div className="p-3 bg-surface rounded-xl border border-border space-y-2">
                   <span className="text-ink-secondary font-semibold uppercase tracking-wider text-[10px]">
-                    Encrypted Commercial Line Items
+                    Commercial Goods & Services Line Items
                   </span>
                   <div className="divide-y divide-border/60">
                     {decryptedData.lineItems?.map((item, idx) => (
@@ -377,20 +402,27 @@ export default function InvoiceDetailPage() {
                 </div>
               </div>
             </Card>
-          ) : activeViewerRole === "unauthorized" ? (
-            <Card className="space-y-4 border-rose-200 bg-rose-50/20 text-center py-10">
-              <div className="w-12 h-12 rounded-2xl bg-danger-tint text-danger flex items-center justify-center mx-auto">
+          ) : (!isAuthorized || activeViewerRole === "unauthorized") ? (
+            <Card className="space-y-4 border-slate-300 bg-slate-50/50 text-center py-10">
+              <div className="w-12 h-12 rounded-2xl bg-slate-200 text-slate-700 flex items-center justify-center mx-auto">
                 <Lock className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-ink">Access Restricted</h3>
-                <p className="text-xs text-ink-secondary max-w-md mx-auto">
-                  You do not have cryptographic permission on <code>AccessRegistry.sol</code> to decrypt this invoice's confidential payload.
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="px-3 py-1 bg-slate-200 text-slate-800 rounded-full font-bold text-xs border border-slate-300 inline-flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-700" />
+                    Confidential Trade Payload (Encrypted)
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-ink">Confidential Business Payload Protected</h3>
+                <p className="text-xs text-ink-secondary max-w-md mx-auto leading-relaxed">
+                  All commercial terms, counterparty enterprise details, and line items are protected by bank-grade client-side encryption with zero plaintext leakage.
+                  Only the cryptographic commitment hash is recorded on-chain.
                 </p>
               </div>
               <Link href={`/invoices/${invoice.id}/share`}>
                 <Button variant="outline" size="sm" className="mt-2 text-primary border-primary/20">
-                  Request Permission from Owner
+                  Request Permission from Owner via Privacy Hub
                 </Button>
               </Link>
             </Card>
@@ -402,7 +434,7 @@ export default function InvoiceDetailPage() {
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-ink">Encrypted Record Not Found in Local Cache</h3>
                 <p className="text-xs text-ink-secondary max-w-md mx-auto">
-                  You have access on <code>AccessRegistry.sol</code>, but the encrypted ciphertext is not in your browser cache (e.g. Incognito window or new session).
+                  Permission is granted, but the encrypted ciphertext is not loaded in your local browser session.
                 </p>
               </div>
               <Button
@@ -413,7 +445,7 @@ export default function InvoiceDetailPage() {
                 isLoading={isRestoring}
                 icon={<RefreshCw className="w-4 h-4" />}
               >
-                Re-Import from On-Chain Pointer ({invoice.pointer ? `${invoice.pointer.slice(0, 16)}...` : "IPFS"})
+                Re-Import from Cloud / Decentralized Storage
               </Button>
             </Card>
           )}
@@ -422,36 +454,36 @@ export default function InvoiceDetailPage() {
           <Card className="space-y-5">
             <div className="flex items-center gap-2 border-b border-border pb-3">
               <ShieldCheck className="w-5 h-5 text-primary" />
-              <h3 className="text-base font-bold text-ink">Attestcoin Protocol Verification</h3>
+              <h3 className="text-base font-bold text-ink">Instant Settlement & Verification Engine</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="p-3 bg-bg rounded-xl border border-border/80 space-y-1">
-                <span className="text-ink-secondary font-medium">Source Chain</span>
-                <p className="font-bold text-ink">Ethereum Sepolia (ChainKey: 1)</p>
+                <span className="text-ink-secondary font-medium">Origin Network</span>
+                <p className="font-bold text-ink">Ethereum Sepolia (Chain ID: 11155111)</p>
               </div>
 
               <div className="p-3 bg-bg rounded-xl border border-border/80 space-y-1">
-                <span className="text-ink-secondary font-medium">Attested Height</span>
+                <span className="text-ink-secondary font-medium">Verified Settlement Block</span>
                 <p className="font-bold text-ink">
-                  {invoice.attestedHeight ? `#${invoice.attestedHeight.toLocaleString()}` : "Pending Relayer"}
+                  {invoice.attestedHeight ? `#${invoice.attestedHeight.toLocaleString()}` : "Pending Settlement Check"}
                 </p>
               </div>
 
               <div className="p-3 bg-bg rounded-xl border border-border/80 space-y-1">
-                <span className="text-ink-secondary font-medium">Due Date Block</span>
+                <span className="text-ink-secondary font-medium">Settlement Maturity Period</span>
                 <p className="font-bold text-ink">#{invoice.dueDateBlock.toLocaleString()}</p>
               </div>
 
               <div className="p-3 bg-bg rounded-xl border border-border/80 space-y-1">
-                <span className="text-ink-secondary font-medium">Creditcoin Verifier</span>
-                <p className="font-mono font-bold text-primary">Precompile 0x0FD2</p>
+                <span className="text-ink-secondary font-medium">Verification Engine</span>
+                <p className="font-mono font-bold text-primary">Instant Verification Engine (Precompile 0x0FD2)</p>
               </div>
             </div>
 
             <div className="space-y-2 pt-2 border-t border-border">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-secondary">Sepolia Origin Tx:</span>
+                <span className="text-ink-secondary">Origin Settlement Transaction:</span>
                 <a
                   href={EXPLORER_HELPERS.getSepoliaTxUrl(invoice.txHash)}
                   target="_blank"
@@ -464,21 +496,21 @@ export default function InvoiceDetailPage() {
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-secondary">Privacy Commitment (keccak256):</span>
+                <span className="text-ink-secondary">Cryptographic Commitment Hash (SHA-256):</span>
                 <span className="font-mono text-ink text-[11px]">
                   {invoice.commitment ? `${invoice.commitment.slice(0, 14)}...${invoice.commitment.slice(-8)}` : "0x98f4e21a4d8c7b...2d3e"}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-secondary">Off-Chain IPFS Pointer:</span>
+                <span className="text-ink-secondary">Encrypted Storage Pointer:</span>
                 <span className="font-mono text-primary text-[11px]">
                   {invoice.pointer ? `${invoice.pointer.slice(0, 18)}...` : "ipfs://bafkreihdwdc..."}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-ink-secondary">Creditcoin USC Contract:</span>
+                <span className="text-ink-secondary">Credit Facility Contract:</span>
                 <a
                   href={EXPLORER_HELPERS.getCreditcoinAddressUrl(CONTRACT_ADDRESSES?.creditcoin?.vaultLending || "0xE8686e4D2856Da637F2c17c71d818911Ec541dE5")}
                   target="_blank"
@@ -496,7 +528,10 @@ export default function InvoiceDetailPage() {
         {/* Right Column: Actions & Live Attestation Feed */}
         <div className="lg:col-span-5 space-y-6">
           <Card className="space-y-4">
-            <h3 className="text-base font-bold text-ink">Lending & Collateral Actions</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-ink">Working Capital & Credit Actions</h3>
+              <ClaimFaucetButton variant="compact" />
+            </div>
 
             {invoice.status === "Awaiting Proof" && (
               <Button
@@ -506,7 +541,7 @@ export default function InvoiceDetailPage() {
                 onClick={handleStartAttestation}
                 isLoading={isAttesting}
               >
-                Submit Inclusion Proof (0x0FD2)
+                Verify Cross-Border Invoice
               </Button>
             )}
 
@@ -514,45 +549,68 @@ export default function InvoiceDetailPage() {
               <div className="space-y-3">
                 <div className="p-3 bg-success-tint border border-emerald-200 rounded-xl text-xs space-y-1">
                   <span className="font-bold text-success flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" /> Ready for Borrowing
+                    <CheckCircle2 className="w-4 h-4" /> Verified & Ready for Financing
                   </span>
                   <p className="text-ink-secondary">
-                    Max draw: <strong>${maxBorrow.toLocaleString()} USDC</strong> (70% LTV).
+                    Available credit limit: <strong>${maxBorrow.toLocaleString()} USDC</strong> (70% Advance Rate).
                   </p>
                 </div>
-                <Link href="/loans">
-                  <Button variant="primary" size="md" className="w-full">
-                    Draw Liquidity
-                  </Button>
-                </Link>
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                  icon={<Coins className="w-4 h-4" />}
+                  onClick={() => setIsBorrowModalOpen(true)}
+                >
+                  Draw Working Capital (Disburse to Wallet)
+                </Button>
               </div>
             )}
 
             {invoice.status === "Borrowed" && (
               <div className="space-y-3">
-                <Button variant="secondary" size="md" className="w-full" onClick={handleSimulatePayment}>
-                  Simulate Debtor Payment on Sepolia
+                <div className="p-3 bg-blue-50/60 border border-blue-200 rounded-xl text-xs space-y-1">
+                  <span className="font-bold text-primary flex items-center gap-1">
+                    <Coins className="w-4 h-4" /> Credit Line Active
+                  </span>
+                  <p className="text-ink-secondary">
+                    Principal Drawn: <strong>${(invoice.borrowedAmountUsd || 18900).toLocaleString()} {invoice.borrowedToken || "USDC"}</strong>
+                  </p>
+                </div>
+
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  icon={<CreditCard className="w-4 h-4" />}
+                  onClick={() => setIsRepayModalOpen(true)}
+                >
+                  Repay Working Capital (Approve & Pay USDC)
+                </Button>
+
+                <Button variant="secondary" size="md" className="w-full text-xs" onClick={handleSimulatePayment}>
+                  Simulate Buyer Settlement Payment
                 </Button>
                 <Button
                   variant="outline"
                   size="md"
-                  className="w-full text-danger border-rose-200 hover:bg-danger-tint"
+                  className="w-full text-danger border-rose-200 hover:bg-danger-tint text-xs"
                   onClick={handleTriggerDefaultCheck}
                 >
-                  Verify Absence Proof past Due Block
+                  Check Settlement Status (Automated Default Resolution)
                 </Button>
               </div>
             )}
 
             {invoice.status === "Paid" && (
               <div className="p-3 bg-success-tint border border-emerald-200 rounded-xl text-xs text-success font-semibold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" /> Collateral released upon attested Sepolia payment!
+                <CheckCircle2 className="w-4 h-4" /> Collateral released upon verified cross-border payment!
               </div>
             )}
 
             {invoice.status === "Defaulted" && (
               <div className="p-3 bg-danger-tint border border-rose-200 rounded-xl text-xs text-danger font-semibold flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Defaulted via verified absence-of-payment proof. Liquidated to vault.
+                <Clock className="w-4 h-4" /> Default protection enacted via verified absence-of-payment audit. Escrow liquidated.
               </div>
             )}
           </Card>
@@ -560,6 +618,42 @@ export default function InvoiceDetailPage() {
           <LiveAttestationFeed />
         </div>
       </div>
+
+      {/* On-Chain Borrow & Repay Modals */}
+      {invoice && (
+        <BorrowModal
+          isOpen={isBorrowModalOpen}
+          onClose={() => {
+            setIsBorrowModalOpen(false);
+            loadInvoiceData();
+          }}
+          invoice={invoice}
+          onSuccess={() => loadInvoiceData()}
+        />
+      )}
+
+      {invoice && (
+        <RepayLoanModal
+          isOpen={isRepayModalOpen}
+          onClose={() => {
+            setIsRepayModalOpen(false);
+            loadInvoiceData();
+          }}
+          loan={{
+            id: `LOAN-${invoice.id.replace("INV-", "")}`,
+            invoiceId: invoice.id,
+            borrower: currentViewerAddress,
+            principalUsd: invoice.borrowedAmountUsd || 18900,
+            currency: invoice.borrowedToken || "USDC",
+            ltvPercent: 70,
+            apr: invoice.apr || 4.5,
+            status: "Active",
+            dueDate: "2026-09-28",
+            dueDateBlock: invoice.dueDateBlock,
+          }}
+          onSuccess={() => loadInvoiceData()}
+        />
+      )}
     </div>
   );
 }

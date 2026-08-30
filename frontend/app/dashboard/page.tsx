@@ -106,13 +106,13 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* TopBar */}
       <TopBar
-        title="Protocol Dashboard"
-        subtitle="Cross-chain RWA invoice collateralization, tiered credit lines, and precompile 0x0FD2 attestations"
+        title="Trade Finance & Portfolio Dashboard"
+        subtitle="Verified accounts receivable financing, dynamic working capital facilities, and instant settlement verification"
         actionButton={
           <div className="flex items-center gap-2">
             <Link href="/invoices">
               <Button variant="secondary" size="md" icon={<Layers className="w-4 h-4 text-primary" />}>
-                <span>Batch Attest</span>
+                <span>Batch Verification</span>
               </Button>
             </Link>
             <Button
@@ -121,7 +121,7 @@ export default function DashboardPage() {
               icon={<PlusCircle className="w-4 h-4" />}
               onClick={() => setIsIssueModalOpen(true)}
             >
-              <span>Tokenize Invoice</span>
+              <span>Finance New Invoice</span>
             </Button>
           </div>
         }
@@ -133,7 +133,7 @@ export default function DashboardPage() {
           <ProofProgressRing
             progressPercent={attestationPercent}
             secondsRemaining={attestationSecs}
-            statusText={activeStepText}
+            statusText={activeStepText || "Instant Verification Engine active (~15s settlement check)..."}
             txHash={activeTxHash}
           />
         </section>
@@ -142,38 +142,38 @@ export default function DashboardPage() {
       {/* 4 Hero Stat Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
-          title="Total Collateral Attested"
+          title="Verified Accounts Receivable"
           value={`$${(totalCollateralUsd / 1000).toFixed(0)}K`}
           unit="USD"
-          delta={{ value: "18.4%", isPositive: true, label: "vs last month" }}
-          subtitle="Backed by Sepolia RWA Escrow"
+          delta={{ value: "18.4%", isPositive: true, label: "trade volume" }}
+          subtitle="Secured by Cross-Border Escrow"
           sparklineData={[40, 52, 60, 75, 82, 95, 110]}
         />
 
         <StatCard
-          title="Active Loans Drawn"
+          title="Working Capital Drawn"
           value={`$${(totalBorrowedUsd / 1000).toFixed(0)}K`}
           unit="USDC"
           badgeStatus="Borrowed"
-          subtitle="8 Active Credit Lines"
+          subtitle="8 Active Credit Lines · Avg 4.5% APR"
           sparklineData={[20, 28, 35, 45, 55, 68, 74]}
         />
 
         <StatCard
-          title="Available Credit Line"
+          title="Available Credit Limit"
           value={`$${(availableCreditUsd / 1000).toFixed(0)}K`}
           unit="USDC"
           badgeStatus="Best rate"
-          subtitle="Dynamic 50%-80% LTV"
+          subtitle="Dynamic 50%–80% Advance Rate"
           sparklineData={[80, 75, 70, 65, 60, 58, 55]}
         />
 
         <StatCard
-          title="Attestations Pending"
+          title="Pending Verification"
           value={pendingCount.toString()}
           unit="Invoices"
           badgeStatus={pendingCount > 0 ? "Awaiting Proof" : "Attested"}
-          subtitle="Creditcoin Relayer Lag: 0 Blocks"
+          subtitle="Instant Verification Engine: Real-Time"
           sparklineData={[1, 3, 2, 4, 2, 1, pendingCount]}
         />
       </section>
@@ -188,14 +188,14 @@ export default function DashboardPage() {
           <Card className="p-0 overflow-hidden">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold text-ink">Recent Tokenized Invoices</h3>
+                <h3 className="text-lg font-bold text-ink">Recent Accounts Receivable</h3>
                 <p className="text-xs text-ink-secondary mt-0.5">
-                  Synchronously verified via Creditcoin Precompile 0x0FD2
+                  Audited & verified synchronously via the Instant Verification Engine
                 </p>
               </div>
               <Link href="/invoices">
                 <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-                  View All
+                  View All Portfolio
                 </Button>
               </Link>
             </div>
@@ -205,9 +205,9 @@ export default function DashboardPage() {
                 <thead className="bg-bg/80 border-b border-border">
                   <tr className="text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
                     <th className="py-3 px-6">Invoice ID</th>
-                    <th className="py-3 px-4">Amount</th>
-                    <th className="py-3 px-4">Risk Tier</th>
-                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Face Value</th>
+                    <th className="py-3 px-4">Buyer Risk Tier</th>
+                    <th className="py-3 px-4">Verification Status</th>
                     <th className="py-3 px-6 text-right">Action</th>
                   </tr>
                 </thead>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                       <td className="py-3.5 px-6 text-right">
                         <Link href={`/invoices/${inv.id}`}>
                           <Button size="sm" variant="ghost">
-                            Details
+                            View Details
                           </Button>
                         </Link>
                       </td>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
           <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-ink">Issue & Collateralize Invoice</h3>
+              <h3 className="text-lg font-bold text-ink">Register & Finance Accounts Receivable</h3>
               <button onClick={() => setIsIssueModalOpen(false)} className="text-ink-secondary hover:text-ink">
                 <X className="w-5 h-5" />
               </button>
@@ -268,7 +268,7 @@ export default function DashboardPage() {
             <form onSubmit={handleIssueSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.04em] text-ink-secondary mb-1.5">
-                  Invoice Face Value (ETH)
+                  Invoice Face Value (ETH / Collateral)
                 </label>
                 <input
                   type="number"
@@ -282,22 +282,22 @@ export default function DashboardPage() {
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.04em] text-ink-secondary mb-1.5">
-                  Debtor Risk Tier (LTV Cap)
+                  Buyer Credit Rating & Advance Rate
                 </label>
                 <select
                   value={newRiskTier}
                   onChange={(e) => setNewRiskTier(e.target.value as any)}
                   className="w-full px-3.5 py-2 bg-bg border border-border rounded-btn text-xs font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
-                  <option value="Tier A (Prime 80%)">Tier A (Prime) — 80% Max LTV (4.0% APR)</option>
-                  <option value="Tier B (Standard 70%)">Tier B (Standard) — 70% Max LTV (4.5% APR)</option>
-                  <option value="Tier C (Subprime 50%)">Tier C (Subprime) — 50% Max LTV (6.5% APR)</option>
+                  <option value="Tier A (Prime 80%)">Tier A (Prime Corporate) — 80% Advance Rate (4.0% APR)</option>
+                  <option value="Tier B (Standard 70%)">Tier B (Standard Commercial) — 70% Advance Rate (4.5% APR)</option>
+                  <option value="Tier C (Subprime 50%)">Tier C (Higher Risk) — 50% Advance Rate (6.5% APR)</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.04em] text-ink-secondary mb-1.5">
-                  Debtor Ethereum Address
+                  Buyer Corporate Account / Counterparty Address
                 </label>
                 <input
                   type="text"
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                   Cancel
                 </Button>
                 <Button variant="primary" type="submit" isLoading={isSubmitting}>
-                  Issue on Sepolia
+                  Register & Verify Receivable
                 </Button>
               </div>
             </form>

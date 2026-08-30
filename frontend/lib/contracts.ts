@@ -79,6 +79,10 @@ export const VAULT_LENDING_ABI = [
   "function borrow(bytes32 invoiceId, uint256 amount) external returns (bytes32 loanId)",
   "function borrowWithToken(bytes32 invoiceId, address tokenToBorrow, uint256 amount) external returns (bytes32 loanId)",
   "function repay(bytes32 loanId) external",
+  "function repayInvoice(bytes32 invoiceId) external",
+  "function depositLiquidity(address token, uint256 amount) external",
+  "function withdrawLiquidity(address token, uint256 amount) external",
+  "function lenderBalances(address lender, address token) external view returns (uint256)",
   "function releaseOnPayment(uint256 chainKey, uint256 height, bytes calldata encodedTransaction, bytes calldata merkleProof, bytes calldata continuityProof, bytes32 invoiceId, bytes32 sourceChainTxHash) external",
   "function liquidateOnDefault(uint256 chainKey, uint256 height, bytes calldata encodedTransaction, bytes calldata merkleProof, bytes calldata continuityProof, bytes32 invoiceId, uint256 dueDateBlock) external",
   "function getDebtorLtvCap(address debtor) external view returns (uint256)",
@@ -93,6 +97,24 @@ export const VAULT_LENDING_ABI = [
   "event LoanRepaid(bytes32 indexed loanId)",
   "event LoanLiquidated(bytes32 indexed loanId)",
   "event DebtorTierUpdated(address indexed debtor, uint8 tier, uint256 ltvBps)",
+  "event LiquidityDeposited(address indexed lender, address indexed token, uint256 amount)",
+  "event LiquidityWithdrawn(address indexed lender, address indexed token, uint256 amount)",
+] as const;
+
+export const MOCK_ERC20_ABI = [
+  "function name() external view returns (string)",
+  "function symbol() external view returns (string)",
+  "function decimals() external view returns (uint8)",
+  "function totalSupply() external view returns (uint256)",
+  "function balanceOf(address owner) external view returns (uint256)",
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function transfer(address to, uint256 amount) external returns (bool)",
+  "function transferFrom(address from, address to, uint256 amount) external returns (bool)",
+  "function mint(address to, uint256 amount) external",
+  "function faucet(address to, uint256 amount) external",
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
+  "event Approval(address indexed owner, address indexed spender, uint256 value)",
 ] as const;
 
 export const STREAK_REGISTRY_ABI = [

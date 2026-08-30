@@ -60,13 +60,13 @@ export default function InvoiceSharePage() {
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-secondary hover:text-primary transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back to Invoice</span>
+          <span>Back to Receivable Details</span>
         </Link>
       </div>
 
       <TopBar
-        title="Privacy & Access Control"
-        subtitle={`Manage encrypted-by-default sharing permissions for ${invoiceId}`}
+        title="Selective Access & Privacy Controls"
+        subtitle={`Manage permissioned sharing & confidentiality controls for ${invoiceId}`}
         showFilter={false}
       />
 

@@ -60,14 +60,14 @@ export const CollateralChart: React.FC<{ className?: string }> = ({ className = 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span className="text-[12px] font-semibold uppercase tracking-[0.04em] text-ink-secondary">
-            Collateral Analytics
+            Receivables & Credit Analytics
           </span>
           <div className="flex items-baseline gap-3 mt-0.5">
             <h3 className="text-[20px] font-bold text-ink tracking-tight">
               ${(activePoint.collateral / 1000).toFixed(2)}M
             </h3>
             <span className="inline-flex items-center gap-1 text-xs font-semibold text-success bg-success-tint px-2 py-0.5 rounded-full">
-              ↑ +18.4% this month
+              ↑ +18.4% active trade volume
             </span>
           </div>
         </div>
@@ -165,8 +165,8 @@ export const CollateralChart: React.FC<{ className?: string }> = ({ className = 
             style={{ left: `${(points[hoveredIdx].x / width) * 100}%` }}
           >
             <div className="font-semibold">{points[hoveredIdx].label}</div>
-            <div className="text-blue-300">Collateral: ${(points[hoveredIdx].collateral / 1000).toFixed(2)}M</div>
-            <div className="text-slate-300">Borrowed: ${(points[hoveredIdx].borrowed / 1000).toFixed(2)}M</div>
+            <div className="text-blue-300">Receivables: ${(points[hoveredIdx].collateral / 1000).toFixed(2)}M</div>
+            <div className="text-slate-300">Credit Drawn: ${(points[hoveredIdx].borrowed / 1000).toFixed(2)}M</div>
           </div>
         )}
       </div>
@@ -174,15 +174,15 @@ export const CollateralChart: React.FC<{ className?: string }> = ({ className = 
       {/* Footer Metrics Breakdown */}
       <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border text-center">
         <div>
-          <span className="text-[11px] font-medium text-ink-secondary">Total Attested</span>
+          <span className="text-[11px] font-medium text-ink-secondary">Verified Receivables</span>
           <p className="text-sm font-bold text-ink">$2.84M</p>
         </div>
         <div>
-          <span className="text-[11px] font-medium text-ink-secondary">Active Drawn (70% Max)</span>
+          <span className="text-[11px] font-medium text-ink-secondary">Working Capital Drawn</span>
           <p className="text-sm font-bold text-primary">$1.98M</p>
         </div>
         <div>
-          <span className="text-[11px] font-medium text-ink-secondary">Available Headroom</span>
+          <span className="text-[11px] font-medium text-ink-secondary">Available Facility</span>
           <p className="text-sm font-bold text-success">$860K</p>
         </div>
       </div>

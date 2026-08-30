@@ -27,6 +27,10 @@
 | 2026-08-30 | Autonomous Keeper Webhooks & SSE Feed | Integrated Discord & Telegram webhooks in `keeper.ts`, added SSE stream at `/api/events/stream`, and built live ticker in `LiveAttestationFeed.tsx` with Blockscout links. |
 | 2026-08-30 | Competitive Benchmark & ZK Stealth Roadmap | Added comparison matrix (0x0FD2 vs LayerZero/Wormhole/Chainlink) in `how-it-works/page.tsx` and interactive ZK stealth address simulation on `/invoices/[id]/share`. |
 | 2026-08-30 | Production & Dev Chunk Collision Fix | Added `transpilePackages: ["wagmi", "viem", "@wagmi/core"]` in `next.config.js` and automated `.next` cache auto-cleaning in `npm run dev` to eliminate stale production chunk hash collisions (`./554.js`, `./vendor-chunks/...`). |
+| 2026-08-30 | Real On-Chain Testnet Liquidity & Wallet Disbursement | Wired `MockERC20.sol` public `faucet(address to, uint256 amount)` method up to 10,000 USDC on Creditcoin Testnet. Added 1-click Claim Faucet buttons, wired `VaultLending.borrow()` to physically disburse tokens to connected wallets, and `VaultLending.repay()` to debit tokens upon repayment. |
+| 2026-08-30 | Privacy Layer On-Chain Storage & Deterministic Commitment | Built client-side AES-256-GCM encryption with 256-bit keys and `computeCommitment = sha256(ciphertext)`. Zero plaintext business data stored on Creditcoin. Added `useInvoiceDecryption` hook for client-side decryption. |
+| 2026-08-30 | Selective Permissioned Sharing & Instant Revocation | Built ECIES key wrapping delegation for designated roles: `Verified Auditor (KPMG/Deloitte)`, `Institutional Lender`, `Tax Compliance Officer`. Added 1-click `revokeAccess()` wiping permissions immediately on-chain. |
+| 2026-08-30 | Enterprise FinTech Copy & Terminology Revamp | Overhauled all UI write-ups across Dashboard, Invoices, Detail, and Facilities: *Verified Accounts Receivable*, *Instant Verification Engine*, *Working Capital Credit Facilities*, *Yield & Liquidity Vault*, *Draw Working Capital*, and *Authorize & Repay Loan*. |
 
 ## Soulbound StreakBadge Call Pattern
 - **Contract Interface:** `StreakBadge.mintMilestoneBadge(address to, bytes32 streakId, uint256 milestoneDays)`
@@ -46,11 +50,13 @@
 - [x] **M6**: Frontend public landing page, interactive dashboard, ~15s attestation wait ring, and Wagmi wallet connection.
 - [x] **M7**: Production pitch deck, gas benchmarks, and 2-minute video demo script (`docs/pitch-deck.md`).
 
-### V2 Privacy Layer (100% Complete)
+### V2 Privacy Layer & Trade Finance (100% Complete)
 - [x] **P1**: Encryption utils + key wrapping working client-side (`crypto/` verified with roundtrip tests).
 - [x] **P2**: `AccessRegistry.sol` implemented and tested (`AccessRegistry.test.js` & `PrivacyAccessControl.test.js` passing 25/25 tests).
 - [x] **P3**: `VaultLending.sol` migrated to commitment+pointer storage (no plaintext on-chain).
-- [x] **P4**: Full share flow & decryption read path live in UI (`/invoices/[id]/share` + client-side AES-GCM decryption with viewer role simulation).
+- [x] **P4**: Full selective access flow & decryption read path live in UI (`/invoices/[id]/share` + client-side AES-GCM decryption with viewer role simulation).
+- [x] **P5**: Real on-chain token movement with faucet (`MockERC20.sol`) and interactive wallet disbursement / repayment.
+- [x] **P6**: Yield & Liquidity Vault (`depositLiquidity` / `withdrawLiquidity`) earning 8.5% APY.
 
 ### Advanced Wallet Suite (100% Complete)
 - [x] **W1**: Multi-provider wallet connect modal (MetaMask, Coinbase, WalletConnect, Rainbow, Brave, Injected).

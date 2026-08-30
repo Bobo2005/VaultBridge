@@ -69,6 +69,9 @@ contract VaultLending is Ownable {
     // Counters
     uint256 public loanCounter;
 
+    // Lender liquidity balances: lender => token => balance
+    mapping(address => mapping(address => uint256)) public lenderBalances;
+
     // Events
     event InvoiceRegistered(
         bytes32 indexed invoiceId,
@@ -96,6 +99,8 @@ contract VaultLending is Ownable {
     event DebtorTierUpdated(address indexed debtor, uint8 tier, uint256 ltvBps);
     event SupportedTokenUpdated(address indexed token, bool supported);
     event PriceOracleUpdated(address indexed oracle);
+    event LiquidityDeposited(address indexed lender, address indexed token, uint256 amount);
+    event LiquidityWithdrawn(address indexed lender, address indexed token, uint256 amount);
 
     // Constructor
     constructor(address _mockToken) Ownable(msg.sender) {
@@ -342,9 +347,48 @@ contract VaultLending is Ownable {
     }
 
     /**
+     * @dev Deposit liquidity into the lending pool (USDC, EURC, MockToken)
+     */
+    function depositLiquidity(address token, uint256 amount) external {
+        require(supportedTokens[token], "Unsupported deposit token");
+        require(amount > 0, "Amount must be > 0");
+        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Token deposit transfer failed");
+
+        lenderBalances[msg.sender][token] += amount;
+        emit LiquidityDeposited(msg.sender, token, amount);
+    }
+
+    /**
+     * @dev Withdraw liquidity from the lending pool
+     */
+    function withdrawLiquidity(address token, uint256 amount) external {
+        require(amount > 0, "Amount must be > 0");
+        require(lenderBalances[msg.sender][token] >= amount, "Insufficient deposited balance");
+        require(IERC20(token).balanceOf(address(this)) >= amount, "Insufficient pool liquidity");
+
+        lenderBalances[msg.sender][token] -= amount;
+        require(IERC20(token).transfer(msg.sender, amount), "Token withdrawal transfer failed");
+
+        emit LiquidityWithdrawn(msg.sender, token, amount);
+    }
+
+    /**
+     * @dev Repay a loan by invoiceId
+     */
+    function repayInvoice(bytes32 invoiceId) external {
+        bytes32 loanId = invoiceIdToLoanId[invoiceId];
+        require(loanId != bytes32(0), "No active loan for invoice");
+        _repayLoan(loanId);
+    }
+
+    /**
      * @dev Repay a loan and mark invoice as paid
      */
     function repay(bytes32 loanId) external {
+        _repayLoan(loanId);
+    }
+
+    function _repayLoan(bytes32 loanId) internal {
         Loan storage loan = loans[loanId];
         require(loan.active && loan.status == 0, "Loan not active");
 

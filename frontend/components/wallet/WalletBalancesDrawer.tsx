@@ -16,7 +16,9 @@ import {
 import {
   CachedWalletBalances,
   fetchWalletBalancesWithCache,
+  subscribeToBalanceUpdates,
 } from "../../lib/balanceCache";
+import { ClaimFaucetButton } from "./ClaimFaucetButton";
 
 export interface WalletBalancesDrawerProps {
   isOpen: boolean;
@@ -46,6 +48,10 @@ export const WalletBalancesDrawer: React.FC<WalletBalancesDrawerProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadBalances(false);
+      const unsubscribe = subscribeToBalanceUpdates(() => {
+        loadBalances(true);
+      });
+      return () => unsubscribe();
     }
   }, [isOpen, currentAddress, currentChainId]);
 
@@ -84,10 +90,13 @@ export const WalletBalancesDrawer: React.FC<WalletBalancesDrawerProps> = ({
             <div className="flex items-center justify-between pt-2 text-[10px] text-white/80 border-t border-white/10">
               <span>{chain?.name || "Creditcoin Testnet"}</span>
               <span className="flex items-center gap-1 font-mono">
-                <Clock className="w-3 h-3" /> Cached {ageSeconds}s ago (30s TTL)
+                <Clock className="w-3 h-3" /> Cached {ageSeconds}s ago (15s TTL)
               </span>
             </div>
           </Card>
+
+          {/* Testnet Token Claim Quick Action */}
+          <ClaimFaucetButton variant="banner" />
 
           {/* Tokens List */}
           <div className="space-y-3">

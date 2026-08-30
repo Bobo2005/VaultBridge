@@ -43,8 +43,8 @@ describe("Privacy Layer Crypto Roundtrip Tests", () => {
     expect(encrypted.authTag).toBeDefined();
     expect(encrypted.commitment).toBeDefined();
 
-    // Verify commitment is keccak256 of the ciphertext
-    const expectedCommitment = ethers.keccak256(ethers.toUtf8Bytes(encrypted.ciphertext));
+    // Verify commitment is sha256 of the ciphertext
+    const expectedCommitment = ethers.sha256(ethers.toUtf8Bytes(encrypted.ciphertext));
     expect(encrypted.commitment).toBe(expectedCommitment);
 
     // 4. Wrap symmetric key with recipient's public key

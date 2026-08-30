@@ -1,6 +1,6 @@
 # 🏛️ VaultBridge Platform (V1 + V2)
 
-> **Universal Trustless Cross-Chain Verification on Creditcoin**  
+> **Universal Trustless Cross-Chain Verification & Working Capital Credit Facilities on Creditcoin**  
 > Built for the **BUIDL CTC 2026 Fall Hackathon (RWA/DeFi Track & Gaming Track)**  
 > Powered by the **Attestcoin Protocol** (`@gluwa/usc-sdk`) and native **Precompile `0x0FD2`**.
 
@@ -12,20 +12,20 @@
 
 | Contract | Address | Purpose | Status |
 |---|---|---|---|
-| `InvoiceRegistrar.sol` | [`0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`](https://sepolia.etherscan.io/address/0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714) | RWA Invoice Tokenization & Escrow | ✅ Verified Live |
+| `InvoiceRegistrar.sol` | [`0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`](https://sepolia.etherscan.io/address/0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714) | Accounts Receivable Tokenization & Escrow | ✅ Verified Live |
 | `StreakRegistry.sol` | [`0x5FbDB2315678afecb367f032d93F642f64180aa3`](https://sepolia.etherscan.io/address/0x5FbDB2315678afecb367f032d93F642f64180aa3) | Habit Streak Daily Check-In Registry | ✅ Verified Live |
 
 ### Creditcoin USC Testnet (Execution Chain — Chain ID: `102031`)
 
 | Contract / Precompile | Address | Purpose | Status |
 |---|---|---|---|
-| `VaultLending.sol` | [`0xE8686e4D2856Da637F2c17c71d818911Ec541dE5`](https://creditcoin-testnet.blockscout.com/address/0xE8686e4D2856Da637F2c17c71d818911Ec541dE5) | Privacy RWA Lending Vault (Commitment+Pointer) | ✅ Configured |
-| `AccessRegistry.sol` | [`0x6b175474e89094c44da98b954eedeac495271d0f`](https://creditcoin-testnet.blockscout.com/address/0x6b175474e89094c44da98b954eedeac495271d0f) | ECIES Address-Scoped Access Control | ✅ Configured |
-| `StreakVerifier.sol` | [`0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512`](https://creditcoin-testnet.blockscout.com/address/0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512) | Cross-Chain Habit Attestation & Slasher | ✅ Configured |
-| `StreakBadge.sol` | [`0x5FbDB2315678afecb367f032d93F642f64180aa3`](https://creditcoin-testnet.blockscout.com/address/0x5FbDB2315678afecb367f032d93F642f64180aa3) | Soulbound Non-Transferable ERC-721 Badges | ✅ Configured |
-| `MockERC20.sol` | [`0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`](https://creditcoin-testnet.blockscout.com/address/0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714) | Borrowable Liquidity Stablecoins (USDC/EURC/USDT) | ✅ Configured |
+| `VaultLending.sol` | [`0xE8686e4D2856Da637F2c17c71d818911Ec541dE5`](https://creditcoin-testnet.blockscout.com/address/0xE8686e4D2856Da637F2c17c71d818911Ec541dE5) | Privacy Working Capital Facility (Commitment + Pointer) | ✅ Live On-Chain |
+| `AccessRegistry.sol` | [`0x6b175474e89094c44da98b954eedeac495271d0f`](https://creditcoin-testnet.blockscout.com/address/0x6b175474e89094c44da98b954eedeac495271d0f) | Selective Access & Privacy Controls (ECIES Key Delegation) | ✅ Live On-Chain |
+| `StreakVerifier.sol` | [`0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512`](https://creditcoin-testnet.blockscout.com/address/0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512) | Cross-Chain Habit Attestation & Slasher | ✅ Live On-Chain |
+| `StreakBadge.sol` | [`0x5FbDB2315678afecb367f032d93F642f64180aa3`](https://creditcoin-testnet.blockscout.com/address/0x5FbDB2315678afecb367f032d93F642f64180aa3) | Soulbound Non-Transferable ERC-721 Badges | ✅ Live On-Chain |
+| `MockERC20.sol` | [`0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`](https://creditcoin-testnet.blockscout.com/address/0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714) | Working Capital Stablecoins (MockUSDC/EURC with Faucet) | ✅ Live On-Chain |
 | `MockPriceOracle.sol` | `0x2279B7A0a67E1418866B777B764380E68Fa0b3ee` | Staleness & Heartbeat Validated Price Oracle | ✅ Configured |
-| `IUSCVerifier Precompile` | `0x0000000000000000000000000000000000000FD2` | Cryptographic Merkle & Header Continuity Verifier | ⚡ Native Precompile |
+| `IUSCVerifier Precompile` | `0x0000000000000000000000000000000000000FD2` | Instant Verification Engine (Merkle & Header Continuity) | ⚡ Native Precompile |
 | `ChainInfo Precompile` | `0x0000000000000000000000000000000000000FD3` | Cross-Chain Block Header & Height Oracle | ⚡ Native Precompile |
 
 ### Application Services
@@ -44,10 +44,10 @@ VaultBridge demonstrates that Creditcoin's **Attestcoin Protocol** (`@gluwa/usc-
 
 Both platform modules share the **exact same cryptographic proof pipeline** and **native Precompile `0x0FD2`**:
 1. **Positive Inclusion Proofs ("Prove it happened")**:
-   - *Invoice Lending*: Proves a payment transaction occurred on Sepolia $\to$ releases collateral on Creditcoin.
+   - *Private Accounts Receivable Financing*: Proves a buyer settlement payment occurred on Sepolia $\to$ automatically releases escrow collateral on Creditcoin.
    - *StreakChain*: Proves a daily habit check-in occurred on Sepolia $\to$ increments active streak on Creditcoin.
 2. **Absence Proofs ("Prove it DID NOT happen")**:
-   - *Invoice Lending*: Proves zero payments occurred before the invoice due date $\to$ executes default liquidation.
+   - *Private Accounts Receivable Financing*: Proves zero payments occurred before the maturity due date $\to$ executes default liquidation.
    - *StreakChain*: Proves zero check-ins occurred during a 24h block range $\to$ trustlessly resets the missed streak to 0.
 
 ```
@@ -59,47 +59,57 @@ Both platform modules share the **exact same cryptographic proof pipeline** and 
                        ┌──────────────────────────────┴──────────────────────────────┐
                        ▼                                                             ▼
 ┌──────────────────────────────────────────────┐              ┌──────────────────────────────────────────────┐
-│       1. PRIVACY-PRESERVING RWA LENDING      │              │       2. STREAKCHAIN HABIT ATTESTATION       │
+│  1. PRIVATE ACCOUNTS RECEIVABLE FINANCING    │              │       2. STREAKCHAIN HABIT ATTESTATION       │
 │                (RWA/DeFi Track)              │              │                 (Gaming Track)               │
 ├──────────────────────────────────────────────┤              ├──────────────────────────────────────────────┤
-│ • Client-side AES-256-GCM encryption         │              │ • Daily habit check-ins on Sepolia           │
-│ • ECIES secp256k1 address-scoped key sharing │              │ • Precompile 0x0FD2 inclusion attestation    │
-│ • Dynamic Debtor Risk Tiers (80/70/50% LTV)  │              │ • Absence proof resets missed streaks to 0   │
-│ • Bulk Merkle Batching (86.5% gas savings)   │              │ • Soulbound Non-Transferable ERC-721 badges  │
-│ • Attested Default Trigger via Absence Proof │              │ • Hall of Fame leaderboard & public proofs   │
+│ • Real on-chain USDC disbursement & faucet   │              │ • Daily habit check-ins on Sepolia           │
+│ • Client-side AES-256-GCM confidential data  │              │ • Precompile 0x0FD2 inclusion attestation    │
+│ • Selective Access & Instant Revocation      │              │ • Absence proof resets missed streaks to 0   │
+│ • Yield & Liquidity Vault (8.5% APY)         │              │ • Soulbound Non-Transferable ERC-721 badges  │
+│ • Dynamic Buyer Risk Tiers (80/70/50% LTV)   │              │ • Hall of Fame leaderboard & public proofs   │
+│ • High-Throughput Batching (86.5% gas saved) │              │ • Boundary grace window for timezone drifts  │
 └──────────────────────────────────────────────┘              └──────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🔐 1. Privacy Layer & Invoice-Backed RWA Lending (V1 + V2)
+## 🔐 1. Privacy Layer, Working Capital Facilities & Real Liquidity (V1 + V2)
 
-### The $3 Trillion Problem
-Small-and-medium enterprises (SMEs) face a massive liquidity trap in unpaid 30–90 day invoices. Existing on-chain invoice financing protocols either require centralized oracles or expose proprietary business invoices (amounts, debtor names, terms) publicly on-chain.
+### The $3 Trillion Trade Finance Challenge
+Small and medium enterprises (SMEs) face a massive liquidity trap in unpaid 30–90 day accounts receivable. Traditional financing exposes proprietary business contracts, counterparty corporate identities, and payment terms publicly on public blockchains.
 
-### Cryptographic Architecture & Flow
-1. **Client-Side Encryption (`crypto/src/encryptPayload.ts`)**:
-   - Invoices are encrypted in the user's browser via **AES-256-GCM** using a fresh symmetric key $K$.
-   - The encrypted ciphertext blob is pinned to IPFS/blob storage.
-2. **Commitment + Pointer Storage (`VaultLending.sol`)**:
-   - `VaultLending.registerInvoice()` receives only the 32-byte SHA-256 `commitment` and the IPFS `pointer`.
-   - **Zero plaintext invoice details are ever transmitted in transactions or stored unencrypted on-chain.**
-3. **Address-Scoped Key Sharing (`AccessRegistry.sol`)**:
-   - When an owner shares an invoice with an auditor, lender, or debtor, the client wraps key $K$ with the recipient's secp256k1 public key (ECIES) and submits it via `AccessRegistry.grantAccess()`.
-   - The recipient calls `getWrappedKey()`, unwraps $K$ using their private key, and decrypts the invoice in their browser.
-   - Calling `revokeAccess()` strips permissions immediately on-chain.
-4. **Dynamic Debtor Risk Tiers**:
-   - **Tier A Prime (Score ≥ 750)**: **80% LTV** at 4.0% APR.
-   - **Tier B Standard (Score 650–749)**: **70% LTV** at 4.5% APR.
-   - **Tier C Subprime (Score < 650)**: **50% LTV** at 6.5% APR.
-5. **Bulk Merkle Batching (`verifyBatch`)**:
-   - Combines up to 20 invoices in 1 transaction sharing a single block header continuity proof, reducing gas costs from ~52,000 gas to ~7,000 gas per invoice (**⚡ 86.5% gas savings**).
-6. **Attested Default Trigger**:
-   - If an invoice is unpaid past its due date block $H_{due}$, `keeper.ts` generates an **Absence Proof** across continuous block headers $[0, H_{due}]$. `VaultLending.liquidateOnDefault()` executes liquidation with mathematical certainty—without centralized oracles.
+### Cryptographic Architecture & Workflow
+1. **Real Testnet Liquidity & Disbursement Flow (`MockERC20.sol` & `VaultLending.sol`)**:
+   - Integrated public `faucet(address to, uint256 amount)` method allowing users to claim up to **10,000 testnet USDC** directly in the top navigation.
+   - Executing `VaultLending.borrow()` physically disburses MockUSDC from the contract directly into the borrower's connected wallet.
+   - Executing `VaultLending.repay()` approves and settles principal, deducting tokens from the wallet and unlocking collateral receivables.
+   - **Yield & Liquidity Vault**: Lenders deposit and withdraw liquidity (`depositLiquidity` / `withdrawLiquidity`) while earning continuous **8.50% APY**.
+2. **Confidential Client-Side Payload Protection (`crypto/src/encryptPayload.ts`)**:
+   - Invoices are encrypted client-side in the browser via **AES-256-GCM** using a 256-bit key.
+   - The encrypted payload ciphertext is pinned to decentralized storage.
+   - Computes deterministic SHA-256 commitment hash: `commitment = sha256(ciphertext)`.
+3. **Zero Plaintext Leakage On-Chain (`VaultLending.sol`)**:
+   - `VaultLending.registerInvoice()` stores only the 32-byte commitment and encrypted storage pointer URL.
+   - Public block explorers reveal **zero confidential trade terms, counterparty identities, or invoice line items**.
+4. **Selective Access & Privacy Controls (`AccessRegistry.sol`)**:
+   - Borrowers selectively delegate view permissions to authorized stakeholders:
+     - **`Verified Auditor (KPMG/Deloitte)`**
+     - **`Institutional Lender`**
+     - **`Tax Compliance Officer`**
+   - The AES symmetric key is wrapped using the grantee's secp256k1 public key via ECIES and recorded on `AccessRegistry.sol`.
+   - **Instant Revoke Access**: 1-click on-chain revocation immediately removes all decryption permissions for that party.
+5. **Dynamic Buyer Risk Tiers**:
+   - **Tier A Prime (Credit Score ≥ 750)**: **80% Advance Rate** at 4.0% APR.
+   - **Tier B Standard (Credit Score 650–749)**: **70% Advance Rate** at 4.5% APR.
+   - **Tier C Subprime (Credit Score < 650)**: **50% Advance Rate** at 6.5% APR.
+6. **High-Throughput Verification Engine (`verifyBatch`)**:
+   - Combines up to 20 cross-border invoices in 1 transaction sharing a single block header continuity proof, reducing gas costs from ~52,000 gas to ~7,000 gas per invoice (**⚡ 86.5% gas savings**).
+7. **Automated Settlement & Default Resolution**:
+   - If an invoice is unpaid past its settlement maturity period $H_{due}$, `keeper.ts` generates an **Absence Proof** across continuous block headers. `VaultLending.liquidateOnDefault()` executes resolution with mathematical certainty without centralized oracles.
 
 ### 🛡️ Privacy Scope & Honest Design Disclosure
-- **Shipped & Verified**: Payload confidentiality (AES-256-GCM), off-chain encrypted blob storage, on-chain commitment/pointer integrity, and address-based ECIES key wrapping/revocation are **100% implemented, tested, and live in the UI**.
-- **Roadmap Item (Not Shipped)**: Full transaction graph unlinkability (e.g. zero-knowledge stealth addresses or shielded transaction relaying) is an architectural roadmap item. In the current version, the source-chain transaction hash on Sepolia remains linkable to the issuer's public wallet address.
+- **Shipped & Verified**: Payload confidentiality (AES-256-GCM), decentralized encrypted blob storage, on-chain commitment/pointer integrity, and address-based ECIES key delegation/revocation are **100% implemented, tested, and live in the UI**.
+- **Roadmap Item (Phase 3)**: Full transaction graph unlinkability (e.g. zero-knowledge stealth addresses or shielded transaction relaying) is an architectural roadmap milestone. An interactive simulator is available on `/invoices/[id]/share`.
 
 ---
 

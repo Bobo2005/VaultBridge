@@ -109,4 +109,47 @@ describe("VaultLending Multi-Asset & Dynamic Risk-Tiered LTV", function () {
       expect(pointer).to.include("ipfs://");
     });
   });
+
+  describe("MockERC20 Faucet & Token Minting", function () {
+    it("Should allow claiming up to 10,000 USDC tokens via faucet", async function () {
+      const claimAmount = ethers.utils.parseUnits("10000", 6);
+      await usdcToken.connect(borrower).faucet(borrower.address, claimAmount);
+      expect(await usdcToken.balanceOf(borrower.address)).to.equal(claimAmount);
+    });
+
+    it("Should revert if claiming more than 10,000 tokens via faucet", async function () {
+      const excessiveAmount = ethers.utils.parseUnits("10001", 6);
+      await expect(
+        usdcToken.connect(borrower).faucet(borrower.address, excessiveAmount)
+      ).to.be.revertedWith("Faucet limit exceeded (max 10,000 tokens)");
+    });
+  });
+
+  describe("Lender Pool Liquidity (Deposit & Withdraw)", function () {
+    it("Should allow lenders to deposit and withdraw USDC liquidity", async function () {
+      const depositAmount = ethers.utils.parseUnits("5000", 6);
+
+      // Lender claims tokens via faucet
+      await usdcToken.connect(borrower).faucet(borrower.address, depositAmount);
+
+      // Approve VaultLending
+      await usdcToken.connect(borrower).approve(vaultLending.address, depositAmount);
+
+      // Deposit into pool
+      await expect(vaultLending.connect(borrower).depositLiquidity(usdcToken.address, depositAmount))
+        .to.emit(vaultLending, "LiquidityDeposited")
+        .withArgs(borrower.address, usdcToken.address, depositAmount);
+
+      expect(await vaultLending.lenderBalances(borrower.address, usdcToken.address)).to.equal(depositAmount);
+
+      // Withdraw from pool
+      await expect(vaultLending.connect(borrower).withdrawLiquidity(usdcToken.address, depositAmount))
+        .to.emit(vaultLending, "LiquidityWithdrawn")
+        .withArgs(borrower.address, usdcToken.address, depositAmount);
+
+      expect(await vaultLending.lenderBalances(borrower.address, usdcToken.address)).to.equal(0);
+      expect(await usdcToken.balanceOf(borrower.address)).to.equal(depositAmount);
+    });
+  });
 });
+

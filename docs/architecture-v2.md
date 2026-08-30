@@ -102,3 +102,20 @@ Streak {
 
 ## 4. Shared Engine, Two Products
 Both modules call the exact same `proof-pipeline/` functions for the "prove it happened" and "prove it didn't happen" cases — only the contract they submit to and the data shape differs. This is the core platform story: **one trustless attestation engine, two genuinely different real-world applications.**
+
+---
+
+## 5. Real Testnet Liquidity & Working Capital Credit Facilities
+
+### 5.1 Real ERC-20 Disbursement & Faucet Flow
+- **`MockERC20.sol`**: Deployed with a public faucet (`faucet(address to, uint256 amount)`) with per-transaction caps up to 10,000 USDC on Creditcoin Testnet.
+- **Physical Token Disbursement**: When borrowers call `VaultLending.borrow(invoiceId, amount)`, the contract verifies the dynamic advance rate and immediately transfers MockUSDC directly into the borrower's connected wallet.
+- **Token Repayment & Collateral Release**: When calling `VaultLending.repay(loanId)` or `repayInvoice(invoiceId)`, the contract checks allowance, debits MockUSDC from the user's wallet, and unlocks the collateral receivable escrow.
+- **Yield & Liquidity Vault**: Lenders deposit and withdraw liquidity via `depositLiquidity(token, amount)` and `withdrawLiquidity(token, amount)` with live balances recorded in `lenderBalances` and continuous 8.50% APY distribution.
+
+### 5.2 Enterprise FinTech Terminology Standard
+- **Accounts Receivable Financing**: Replaces raw DeFi and crypto jargon across all views.
+- **Instant Verification Engine (Precompile 0x0FD2)**: Validates continuous Merkle inclusion and absence proofs.
+- **Working Capital Credit Facilities**: Multi-asset borrowing secured by verified trade receivables.
+- **Selective Access & Privacy Controls**: Address-scoped ECIES key delegation with instant 1-click revocation.
+

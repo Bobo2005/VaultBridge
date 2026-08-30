@@ -21,6 +21,7 @@ import { AddressBookModal } from "../wallet/AddressBookModal";
 import { QrModal } from "../wallet/QrModal";
 import { WalletBalancesDrawer } from "../wallet/WalletBalancesDrawer";
 import { JudgeDemoModal } from "../JudgeDemoModal";
+import { ClaimFaucetButton } from "../wallet/ClaimFaucetButton";
 
 export interface TopBarProps {
   title: string;
@@ -85,8 +86,11 @@ export const TopBar: React.FC<TopBarProps> = ({
           )}
         </div>
 
-        {/* Right Controls: Judge Demo + Filter + Wallet Tools + Action / Wallet Connect */}
+        {/* Right Controls: Faucet Claim + Judge Demo + Filter + Wallet Tools + Action / Wallet Connect */}
         <div className="flex items-center flex-wrap gap-2.5">
+          {/* 1-Click Testnet Token Claim Button */}
+          <ClaimFaucetButton />
+
           {/* Judge Speedrun Demo Quick Action */}
           <button
             onClick={() => setIsJudgeDemoOpen(true)}

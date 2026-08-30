@@ -81,13 +81,13 @@ export default function HomePage() {
         {/* Main Headline */}
         <div className="space-y-4 max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-ink tracking-tight leading-[1.1]">
-            Cross-Chain Privacy RWA & Habit Attestation on{" "}
+            Private Accounts Receivable Financing & Verified Working Capital on{" "}
             <span className="bg-gradient-to-r from-primary via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Creditcoin
             </span>
           </h1>
           <p className="text-base sm:text-lg text-ink-secondary leading-relaxed max-w-3xl mx-auto">
-            Tokenize trade invoices with <strong>client-side encryption</strong> on Ethereum Sepolia, borrow instant liquidity on Creditcoin, and verify daily habit streaks with <strong>Soulbound NFT badges</strong>—powered 100% trustlessly by the <strong>Attestcoin Protocol</strong>.
+            Finance commercial trade invoices with <strong>bank-grade client-side encryption</strong>, unlock instant <strong>Working Capital Credit Facilities</strong>, and track verifiable habit streaks with <strong>tamper-proof digital credentials</strong>.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function HomePage() {
             onClick={() => connect()}
             className="w-full sm:w-auto px-8 py-3.5 text-sm shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-all"
           >
-            <span>Connect Wallet & Enter App</span>
+            <span>Launch Trade Finance Portal</span>
           </Button>
 
           <Link href="/how-it-works" className="w-full sm:w-auto">
@@ -110,7 +110,7 @@ export default function HomePage() {
               icon={<Activity className="w-4 h-4" />}
               className="w-full sm:w-auto px-6 py-3.5 text-sm"
             >
-              <span>Explore Architecture (V1 + V2)</span>
+              <span>How It Works & Security Model</span>
             </Button>
           </Link>
         </div>
@@ -119,34 +119,34 @@ export default function HomePage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 max-w-4xl mx-auto text-left">
           <div className="p-4 bg-surface border border-border rounded-2xl shadow-xs">
             <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider block">
-              Total Collateral
+              Verified Receivables
             </span>
             <p className="text-2xl font-black text-ink mt-0.5">$2.84M USD</p>
-            <span className="text-[11px] text-success font-medium">Encrypted RWA Escrow</span>
+            <span className="text-[11px] text-success font-medium">Secured Cross-Border Escrow</span>
           </div>
 
           <div className="p-4 bg-surface border border-border rounded-2xl shadow-xs">
             <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider block">
-              Gas Efficiency
+              Settlement Speed
             </span>
-            <p className="text-2xl font-black text-primary mt-0.5">⚡ 86.5%</p>
-            <span className="text-[11px] text-ink-secondary font-medium">Bulk Merkle Batching</span>
+            <p className="text-2xl font-black text-primary mt-0.5">⚡ ~15s</p>
+            <span className="text-[11px] text-ink-secondary font-medium">Instant Verification Engine</span>
           </div>
 
           <div className="p-4 bg-surface border border-border rounded-2xl shadow-xs">
             <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider block">
-              Privacy & Access
+              Data Confidentiality
             </span>
             <p className="text-2xl font-black text-ink mt-0.5">AES-256</p>
-            <span className="text-[11px] text-primary font-medium">ECIES AccessRegistry</span>
+            <span className="text-[11px] text-primary font-medium">End-to-End Key Delegation</span>
           </div>
 
           <div className="p-4 bg-surface border border-border rounded-2xl shadow-xs">
             <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider block">
-              Habit Attestation
+              Performance Audits
             </span>
-            <p className="text-2xl font-black text-amber-500 mt-0.5">Soulbound</p>
-            <span className="text-[11px] text-ink-secondary font-medium">Precompile 0x0FD2</span>
+            <p className="text-2xl font-black text-amber-500 mt-0.5">Verified</p>
+            <span className="text-[11px] text-ink-secondary font-medium">Tamper-Proof Audit Records</span>
           </div>
         </div>
       </section>
@@ -154,15 +154,15 @@ export default function HomePage() {
       {/* COMPOSABLE WITH BAR */}
       <section className="pt-2 pb-6 border-y border-border/80 text-center space-y-4">
         <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-secondary">
-          Composable Across Leading Web3 Infrastructure
+          Integrated with Institutional Cross-Border Financial Infrastructure
         </span>
         <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-70 grayscale hover:grayscale-0 transition-all duration-200">
-          <span className="font-mono font-bold text-sm text-ink">Ethereum Sepolia</span>
-          <span className="font-mono font-bold text-sm text-ink">Creditcoin 3 USC</span>
-          <span className="font-mono font-bold text-sm text-ink">Attestcoin Protocol</span>
-          <span className="font-mono font-bold text-sm text-ink">AES-256-GCM / ECIES</span>
-          <span className="font-mono font-bold text-sm text-ink">Precompile 0x0FD2</span>
-          <span className="font-mono font-bold text-sm text-ink">Vercel & Render</span>
+          <span className="font-mono font-bold text-sm text-ink">Cross-Border Escrow</span>
+          <span className="font-mono font-bold text-sm text-ink">Creditcoin Network</span>
+          <span className="font-mono font-bold text-sm text-ink">Instant Verification Engine</span>
+          <span className="font-mono font-bold text-sm text-ink">Bank-Grade Encryption</span>
+          <span className="font-mono font-bold text-sm text-ink">Synchronous Settlement</span>
+          <span className="font-mono font-bold text-sm text-ink">Enterprise Cloud (SOC-2 Ready)</span>
         </div>
       </section>
 
@@ -170,13 +170,13 @@ export default function HomePage() {
       <section className="space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-primary">
-            Unified Ecosystem
+            Unified Financial Platform
           </span>
           <h2 className="text-3xl font-black text-ink tracking-tight">
-            One Trustless Engine, Two Transformative Products
+            One Secure Engine, Two Transformative Solutions
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary">
-            Built on native precompiles and dual-proof cryptographic verification to eliminate centralized counterparty risk across DeFi and gaming.
+            Built on cryptographic verification to eliminate counterparty risk and automate trade finance liquidity.
           </p>
         </div>
 
@@ -188,30 +188,30 @@ export default function HomePage() {
                 <Lock className="w-6 h-6" />
               </div>
               <span className="px-3 py-1 rounded-full bg-primary-tint text-primary text-xs font-bold border border-primary/20">
-                RWA/DeFi Track (V1 + V2)
+                Working Capital Financing
               </span>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-ink">Privacy-Preserving RWA Lending</h3>
+              <h3 className="text-xl font-bold text-ink">Private Accounts Receivable Financing</h3>
               <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                Tokenize unpaid B2B trade invoices with end-to-end client-side encryption. Commitments and pointers are stored on Creditcoin, with granular access sharing via <code>AccessRegistry.sol</code> and dynamic risk-tiered credit lines (80%/70%/50% LTV).
+                Finance unpaid commercial B2B invoices with end-to-end bank-grade encryption. Business terms and counterparties remain confidential, with granular access sharing for verified auditors and dynamic credit facilities (80%/70%/50% advance rates).
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
               <div className="p-3 bg-bg rounded-xl border border-border/60">
-                <span className="text-ink-secondary font-medium">Encryption</span>
-                <p className="font-bold text-ink mt-0.5">AES-256-GCM + ECIES</p>
+                <span className="text-ink-secondary font-medium">Data Protection</span>
+                <p className="font-bold text-ink mt-0.5">AES-256 Client-Side Encryption</p>
               </div>
               <div className="p-3 bg-bg rounded-xl border border-border/60">
-                <span className="text-ink-secondary font-medium">Default Mechanism</span>
-                <p className="font-bold text-primary mt-0.5">Absence Proof Trigger</p>
+                <span className="text-ink-secondary font-medium">Risk Protection</span>
+                <p className="font-bold text-primary mt-0.5">Automated Default Resolution</p>
               </div>
             </div>
 
             <Link href="/invoices" className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-dark pt-2">
-              <span>Enter Invoice Lending Module</span>
+              <span>Access Receivables Financing</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </Card>
@@ -223,30 +223,30 @@ export default function HomePage() {
                 <Flame className="w-6 h-6 fill-white" />
               </div>
               <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">
-                Gaming Track (V2)
+                Verified Habit & Audit Records
               </span>
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-ink">StreakChain Habit Attestation</h3>
+              <h3 className="text-xl font-bold text-ink">StreakChain Performance Records</h3>
               <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                Reuses the absence-proof engine for trustless habit verification. Check in daily on Sepolia, attest on Creditcoin via Precompile 0x0FD2, mint non-transferable Soulbound milestone badges (7, 30, 100 days), and trustlessly break missed streaks.
+                Reuses the verification engine for verifiable habit and performance tracking. Log daily activity, verify consistency without third-party reliance, and earn digital milestone achievement credentials (7, 30, and 100 days).
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
               <div className="p-3 bg-bg rounded-xl border border-border/60">
-                <span className="text-ink-secondary font-medium">Milestone Rewards</span>
-                <p className="font-bold text-amber-600 mt-0.5">Soulbound ERC-721</p>
+                <span className="text-ink-secondary font-medium">Milestone Credentials</span>
+                <p className="font-bold text-amber-600 mt-0.5">Digital Achievement Badges</p>
               </div>
               <div className="p-3 bg-bg rounded-xl border border-border/60">
-                <span className="text-ink-secondary font-medium">Slashing Logic</span>
-                <p className="font-bold text-danger mt-0.5">Permissionless Break</p>
+                <span className="text-ink-secondary font-medium">Verification Engine</span>
+                <p className="font-bold text-ink mt-0.5">Tamper-Proof Audit Trail</p>
               </div>
             </div>
 
             <Link href="/streaks" className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 pt-2">
-              <span>Enter StreakChain Module</span>
+              <span>Open StreakChain Module</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </Card>
@@ -257,13 +257,13 @@ export default function HomePage() {
       <section className="space-y-8">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-primary">
-            Key Differentiators
+            Key Advantages
           </span>
           <h2 className="text-3xl font-black text-ink tracking-tight">
-            How VaultBridge Revolutionizes Verification
+            How VaultBridge Elevates Commercial Finance
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary">
-            Built on native precompiles and dual-proof cryptographic verification to eliminate centralized counterparty risk.
+            Built on automated verification and cryptographic audit trails to eliminate delays and minimize risk.
           </p>
         </div>
 
@@ -274,10 +274,10 @@ export default function HomePage() {
               <Lock className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Privacy Layer (V2)</span>
-              <h3 className="text-base font-bold text-ink">Client-Side AES & ECIES</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Enterprise Privacy</span>
+              <h3 className="text-base font-bold text-ink">Client-Side Encryption</h3>
               <p className="text-xs text-ink-secondary leading-relaxed">
-                Zero plaintext stored on-chain. Granular address-scoped key delegation via <code>AccessRegistry.sol</code>.
+                Zero plaintext business data stored on public networks. Role-based key delegation for authorized auditors.
               </p>
             </div>
           </Card>
@@ -288,10 +288,10 @@ export default function HomePage() {
               <Zap className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Precompile 0x0FD2</span>
-              <h3 className="text-base font-bold text-ink">Synchronous 1-Block Proofs</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Settlement Engine</span>
+              <h3 className="text-base font-bold text-ink">Instant Verification</h3>
               <p className="text-xs text-ink-secondary leading-relaxed">
-                Direct EVM precompile verification with bulk Merkle batching saving up to 86.5% gas for enterprise portfolios.
+                Automated synchronous verification with bulk batching for scalable enterprise invoice portfolios.
               </p>
             </div>
           </Card>
@@ -302,10 +302,10 @@ export default function HomePage() {
               <Bot className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Absence Engine</span>
-              <h3 className="text-base font-bold text-ink">Attested Default Trigger</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Risk Mitigation</span>
+              <h3 className="text-base font-bold text-ink">Automated Default Protection</h3>
               <p className="text-xs text-ink-secondary leading-relaxed">
-                Proves zero payment before due date to execute automated default liquidations without centralized oracles.
+                Automatically detects unpaid receivables upon maturity to safeguard lender principal without manual delays.
               </p>
             </div>
           </Card>
@@ -316,10 +316,10 @@ export default function HomePage() {
               <Award className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">StreakChain (V2)</span>
-              <h3 className="text-base font-bold text-ink">Soulbound NFT Badges</h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Audit Credentials</span>
+              <h3 className="text-base font-bold text-ink">Verifiable Records</h3>
               <p className="text-xs text-ink-secondary leading-relaxed">
-                Non-transferable ERC-721 milestone badges awarded at 7, 30, and 100 days with public verifiable proof certificates.
+                Digital milestone credentials awarded at 7, 30, and 100 days with public, tamper-proof verification certificates.
               </p>
             </div>
           </Card>
@@ -329,10 +329,10 @@ export default function HomePage() {
       {/* HOW IT WORKS 4-STEP VISUAL JOURNEY */}
       <section className="space-y-8 bg-surface p-8 sm:p-10 border border-border rounded-3xl shadow-sm">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">Cross-Chain Lifecycle</span>
-          <h2 className="text-3xl font-black text-ink tracking-tight">The 4-Step Attestcoin Verification Flow</h2>
+          <span className="text-xs font-bold uppercase tracking-wider text-primary">End-to-End Lifecycle</span>
+          <h2 className="text-3xl font-black text-ink tracking-tight">The 4-Step Working Capital Flow</h2>
           <p className="text-xs sm:text-sm text-ink-secondary">
-            Shared cross-chain attestation engine powering both RWA invoice financing and habit tracking.
+            Streamlined cross-border verification powering both commercial receivables financing and performance audits.
           </p>
         </div>
 
@@ -342,9 +342,9 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow-sm shadow-primary/30">
               01
             </div>
-            <h4 className="text-sm font-bold text-ink">Action on Sepolia</h4>
+            <h4 className="text-sm font-bold text-ink">Register & Encrypt</h4>
             <p className="text-xs text-ink-secondary leading-relaxed">
-              Invoice issued (or habit checked-in) on Ethereum Sepolia with client-side encryption.
+              Commercial invoice issued with client-side bank-grade encryption protecting trade secrets.
             </p>
           </div>
 
@@ -353,9 +353,9 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow-sm shadow-primary/30">
               02
             </div>
-            <h4 className="text-sm font-bold text-ink">Relayer Attestation</h4>
+            <h4 className="text-sm font-bold text-ink">Settlement Check</h4>
             <p className="text-xs text-ink-secondary leading-relaxed">
-              Creditcoin relayer observes the Sepolia block and attests its header state in ~15 seconds.
+              Automated monitoring verifies cross-border invoice authenticity and payment status in ~15 seconds.
             </p>
           </div>
 
@@ -364,9 +364,9 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow-sm shadow-primary/30">
               03
             </div>
-            <h4 className="text-sm font-bold text-ink">0x0FD2 Verification</h4>
+            <h4 className="text-sm font-bold text-ink">Instant Verification</h4>
             <p className="text-xs text-ink-secondary leading-relaxed">
-              ProofBuilder generates proofs; Creditcoin precompile executes synchronous verification on-chain.
+              Instant Verification Engine synchronously validates receivables against verified escrow records.
             </p>
           </div>
 
@@ -375,9 +375,9 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow-sm shadow-primary/30">
               04
             </div>
-            <h4 className="text-sm font-bold text-ink">Release, Slash or Award</h4>
+            <h4 className="text-sm font-bold text-ink">Working Capital Unlocked</h4>
             <p className="text-xs text-ink-secondary leading-relaxed">
-              Collateral released, overdue loan liquidated via absence proof, or Soulbound milestone badge awarded.
+              Borrower draws instant working capital, collateral is released upon debtor payment, or default protection is triggered.
             </p>
           </div>
         </div>

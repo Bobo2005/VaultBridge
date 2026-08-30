@@ -39,36 +39,36 @@ const INITIAL_EVENTS: FeedEvent[] = [
   {
     id: "evt-1",
     type: "INCLUSION_VERIFIED",
-    title: "INV-2026-001 Attested (1-Block)",
-    subtitle: "$12,500 USDC Collateral Verified via Precompile 0x0FD2",
-    badgeText: "Positive Proof",
+    title: "INV-2026-001 Verified",
+    subtitle: "$12,500 USD Working Capital Collateral Authenticated",
+    badgeText: "Verified",
     txHash: "0xdcd053978e3815f282693bb3040b7bdc9ed6f82ca5abfae5af6ee25f3d15cd2d",
     timestamp: "Just now",
   },
   {
     id: "evt-2",
     type: "BADGE_AWARDED",
-    title: "Soulbound sSTRK #7 Awarded",
-    subtitle: "7-Day Streak milestone badge minted on StreakBadge.sol",
-    badgeText: "NFT Badge",
+    title: "Milestone Credential #7 Issued",
+    subtitle: "7-Day Consistency audit credential issued",
+    badgeText: "Audit Credential",
     txHash: "0x3456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
     timestamp: "1m ago",
   },
   {
     id: "evt-3",
     type: "DEFAULT_LIQUIDATED",
-    title: "INV-2026-003 Liquidated",
-    subtitle: "Absence-of-payment proof verified past due block #11566000",
-    badgeText: "Absence Proof",
+    title: "INV-2026-003 Default Resolved",
+    subtitle: "Absence-of-payment audit verified past maturity date",
+    badgeText: "Risk Protection",
     txHash: "0x89abcdef0123456789abcdef0123456789abcdef0123456789abcdef01234567",
     timestamp: "3m ago",
   },
   {
     id: "evt-4",
     type: "STREAK_CHECKIN",
-    title: "StreakChain Check-In Attested",
-    subtitle: "Daily check-in for habit streak (current count: 5 days)",
-    badgeText: "Streak Check-In",
+    title: "Performance Check-In Logged",
+    subtitle: "Daily activity verified (current streak: 5 days)",
+    badgeText: "Performance Log",
     txHash: "0x456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123",
     timestamp: "5m ago",
   },
@@ -89,8 +89,8 @@ export const LiveAttestationFeed: React.FC<LiveAttestationFeedProps> = ({
         id: `evt-${Date.now()}`,
         type: "INCLUSION_VERIFIED",
         title: `INV-2026-${Math.floor(100 + Math.random() * 900)} Verified`,
-        subtitle: `$${Math.floor(5000 + Math.random() * 15000).toLocaleString()} USDC Collateral Attested on Creditcoin`,
-        badgeText: "Precompile 0x0FD2",
+        subtitle: `$${Math.floor(5000 + Math.random() * 15000).toLocaleString()} USD Accounts Receivable Verified`,
+        badgeText: "Instant Verification",
         txHash: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
         timestamp: "Just now",
       };
@@ -119,11 +119,11 @@ export const LiveAttestationFeed: React.FC<LiveAttestationFeedProps> = ({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              Live Attestcoin Stream
+              Live Verification Stream
             </span>
           </div>
           <h3 className="text-base font-bold text-ink tracking-tight mt-0.5">
-            Creditcoin Attestation Feed
+            Settlement & Audit Activity
           </h3>
         </div>
 
@@ -143,7 +143,7 @@ export const LiveAttestationFeed: React.FC<LiveAttestationFeedProps> = ({
               activeTab === "inclusions" ? "bg-surface text-primary shadow-xs font-bold" : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Inclusions
+            Receivables
           </button>
           <button
             onClick={() => setActiveTab("liquidations")}
@@ -151,7 +151,7 @@ export const LiveAttestationFeed: React.FC<LiveAttestationFeedProps> = ({
               activeTab === "liquidations" ? "bg-surface text-danger shadow-xs font-bold" : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Liquidations
+            Risk Actions
           </button>
           <button
             onClick={() => setActiveTab("streaks")}
@@ -159,7 +159,7 @@ export const LiveAttestationFeed: React.FC<LiveAttestationFeedProps> = ({
               activeTab === "streaks" ? "bg-surface text-amber-600 shadow-xs font-bold" : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Streaks
+            Credentials
           </button>
         </div>
       </div>

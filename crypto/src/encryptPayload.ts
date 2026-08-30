@@ -22,6 +22,13 @@ export function generateSymmetricKey(): string {
 }
 
 /**
+ * Computes SHA-256 commitment hash of the ciphertext for on-chain binding
+ */
+export function computeCommitment(ciphertext: string): string {
+  return ethers.sha256(ethers.toUtf8Bytes(ciphertext));
+}
+
+/**
  * Encrypts arbitrary JSON payload using AES-256-GCM
  * @param data Arbitrary JSON serializable data object
  * @param symmetricKeyHex 32-byte hex-encoded symmetric key
@@ -44,8 +51,8 @@ export async function encryptPayload(
 
   const authTag = cipher.getAuthTag();
 
-  // Compute on-chain commitment = keccak256(ciphertext)
-  const commitment = ethers.keccak256(ethers.toUtf8Bytes(encrypted));
+  // Compute on-chain commitment = sha256(ciphertext)
+  const commitment = computeCommitment(encrypted);
 
   return {
     ciphertext: encrypted,

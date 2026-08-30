@@ -56,15 +56,25 @@
     - Client-side **AES-256-GCM** encryption for invoice payloads.
     - Only 32-byte SHA-256 commitment hash and encrypted IPFS pointer stored on `VaultLending.sol`.
     - Address-scoped key delegation and instant on-chain revocation via `AccessRegistry.sol` using **ECIES** secp256k1 key wrapping.
+    - Selective access management supporting `Verified Auditor (KPMG/Deloitte)`, `Institutional Lender`, and `Tax Compliance Officer` roles.
     - UI share and decryption flow live on `/invoices/[id]/share` and `/invoices/[id]`.
 
-12. **StreakChain Module (V2 - Gaming Track)**:
+12. **Real Testnet Liquidity & Wallet Disbursement**:
+    - `MockERC20.sol` public `faucet()` method enabling 1-click 10,000 USDC claim in TopBar.
+    - `VaultLending.borrow()` physically disburses tokens to the connected wallet.
+    - `VaultLending.repay()` settles loan and releases collateral escrow.
+    - `Yield & Liquidity Vault` allows lenders to deposit/withdraw liquidity and earn 8.5% APY.
+
+13. **Enterprise FinTech Terminology Revamp**:
+    - Replaced all blockchain jargon with professional trade finance copy: *Verified Accounts Receivable*, *Instant Verification Engine*, *Working Capital Credit Facilities*, *Yield & Liquidity Vault*, *Draw Working Capital*, *Authorize & Repay Loan*, and *Selective Access & Privacy Controls*.
+
+14. **StreakChain Module (V2 - Gaming Track)**:
     - Daily habit check-ins via `StreakRegistry.sol` on Sepolia.
     - Cross-chain inclusion verification via `StreakVerifier.sol` on Creditcoin.
     - Non-transferable **Soulbound ERC-721** milestone badges via `StreakBadge.sol` awarded at 7, 30, and 100 days.
     - Permissionless missed-day streak break via `generateStreakAbsenceProof.ts` and `breakStreakIfMissed()`.
 
-13. **Multi-Provider Wallet Suite**:
+15. **Multi-Provider Wallet Suite**:
     - Modal supporting MetaMask, Coinbase, WalletConnect, Rainbow, Brave, and Injected.
     - Auto-switching between Sepolia (`11155111`) and Creditcoin USC Testnet (`102031`).
     - 30s TTL balance cache, Address Book modal, and QR Code scanner.
@@ -75,7 +85,7 @@
 
 | Suite | Command | Result |
 |---|---|---|
-| **Smart Contracts** | `cd contracts && npx hardhat test` | **41 / 41 passing (9s)** ✅ |
+| **Smart Contracts** | `cd contracts && npx hardhat test` | **44 / 44 passing (9s)** ✅ |
 | **Privacy Crypto** | `cd crypto && npx jest` | **3 / 3 passing (2.5s)** ✅ |
 | **Proof Pipeline** | `cd proof-pipeline && npx jest --forceExit` | **7 / 7 passing** ✅ |
 | **Next.js 14 Web App** | `cd frontend && npm run build` | **12 / 12 routes compiled (Code 0)** ✅ |
