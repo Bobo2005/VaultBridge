@@ -1,0 +1,34 @@
+# Render Blueprint Specification for VaultBridge Proof Pipeline API
+services:
+  - type: web
+    name: vaultbridge-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: proof-pipeline
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: SEPOLIA_RPC_URL
+        value: https://eth-sepolia.g.alchemy.com/v2/demo
+      - key: CREDITCOIN_RPC_URL
+        value: https://rpc.cc3-testnet.creditcoin.network
+      - key: CREDITCOIN_PROOF_BUILDER_URL
+        value: https://prover.cc3-testnet.creditcoin.network
+      - key: INVOICE_REGISTRAR_ADDRESS
+        value: 0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714
+      - key: STREAK_REGISTRY_ADDRESS
+        value: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - key: VAULT_LENDING_ADDRESS
+        value: 0xE8686e4D2856Da637F2c17c71d818911Ec541dE5
+      - key: STREAK_VERIFIER_ADDRESS
+        value: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+      - key: MOCK_ERC20_ADDRESS
+        value: 0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714
+      - key: PRIVATE_KEY
+        sync: false
