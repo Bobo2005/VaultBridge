@@ -103,12 +103,12 @@ export default function HowItWorksPage() {
         actionButton={
           <div className="flex items-center gap-2">
             <Link href="/invoices">
-              <Button variant="outline" size="md">
+              <Button variant="outline" size="sm">
                 Invoice Lending
               </Button>
             </Link>
             <Link href="/streaks">
-              <Button variant="primary" size="md" icon={<Flame className="w-4 h-4 text-amber-300" />}>
+              <Button variant="primary" size="sm" icon={<Flame className="w-3.5 h-3.5 text-amber-300" />}>
                 StreakChain
               </Button>
             </Link>

@@ -233,8 +233,8 @@ export default function StreaksPage() {
         actionButton={
           <Button
             variant="primary"
-            size="md"
-            icon={<PlusCircle className="w-4 h-4" />}
+            size="sm"
+            icon={<PlusCircle className="w-3.5 h-3.5" />}
             onClick={() => setIsCreateModalOpen(true)}
           >
             <span>Create Habit Streak</span>

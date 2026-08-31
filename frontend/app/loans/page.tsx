@@ -85,8 +85,8 @@ export default function LoansPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              size="md"
-              icon={<PiggyBank className="w-4 h-4 text-primary" />}
+              size="sm"
+              icon={<PiggyBank className="w-3.5 h-3.5 text-primary" />}
               onClick={() => setIsPoolModalOpen(true)}
             >
               Yield & Liquidity Vault
@@ -94,9 +94,9 @@ export default function LoansPage() {
             {attestedInvoices.length > 0 && (
               <Button
                 variant="primary"
-                size="md"
-                icon={<PlusCircle className="w-4 h-4" />}
-                onClick={() => handleOpenBorrow(attestedInvoices[0])}
+                size="sm"
+                icon={<PlusCircle className="w-3.5 h-3.5" />}
+                onClick={() => handleOpenBorrow()}
               >
                 Draw Working Capital
               </Button>

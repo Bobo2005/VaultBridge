@@ -188,14 +188,14 @@ export default function DashboardPage() {
         actionButton={
           <div className="flex items-center gap-2">
             <Link href="/invoices">
-              <Button variant="secondary" size="md" icon={<Layers className="w-4 h-4 text-primary" />}>
+              <Button variant="secondary" size="sm" icon={<Layers className="w-3.5 h-3.5 text-primary" />}>
                 <span>Batch Verification</span>
               </Button>
             </Link>
             <Button
               variant="primary"
-              size="md"
-              icon={<PlusCircle className="w-4 h-4" />}
+              size="sm"
+              icon={<PlusCircle className="w-3.5 h-3.5" />}
               onClick={() => setIsIssueModalOpen(true)}
             >
               <span>Finance New Invoice</span>
