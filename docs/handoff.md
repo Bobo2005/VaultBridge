@@ -66,7 +66,7 @@
     - Implemented "Encrypted Record Not Found in Local Cache" state with a 1-click on-chain pointer re-import option on `/invoices/[id]`.
 
 13. **StreakVerifier Day Boundary Grace Window**:
-    - Added `BOUNDARY_GRACE_PERIOD` in `StreakVerifier.sol` with unit test validating border check-ins at 23:59:45 UTC succeed without duplicate reverts (41/41 tests passing).
+    - Added `BOUNDARY_GRACE_PERIOD` in `StreakVerifier.sol` with unit test validating border check-ins at 23:59:45 UTC succeed without duplicate reverts (44/44 tests passing).
 
 14. **Privacy Layer (V2)**:
     - Client-side **AES-256-GCM** encryption for invoice payloads.
@@ -101,7 +101,7 @@
 
 | Suite | Command | Result |
 |---|---|---|
-| **Smart Contracts** | `cd contracts && npx hardhat test` | **41 / 41 passing** ✅ |
+| **Smart Contracts** | `cd contracts && npx hardhat test` | **44 / 44 passing** ✅ |
 | **Privacy Crypto** | `cd crypto && npx jest` | **3 / 3 passing** ✅ |
 | **Proof Pipeline** | `cd proof-pipeline && npx jest --forceExit` | **7 / 7 passing** ✅ |
 | **Next.js 14 Web App** | `cd frontend && npm run build` | **13 / 13 routes & APIs compiled (Code 0)** ✅ |

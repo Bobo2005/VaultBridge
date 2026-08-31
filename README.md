@@ -166,7 +166,7 @@ StreakChain demonstrates the true power of the Attestcoin absence-proving engine
 
 ## 🧪 Automated Test Suite & Verification Results
 
-### 1. Smart Contract Test Suite (41/41 Passing)
+### 1. Smart Contract Test Suite (44/44 Passing)
 ```bash
 cd contracts
 npx hardhat test
@@ -193,7 +193,7 @@ npx jest
 cd proof-pipeline
 npx jest --forceExit
 ```
-- `pipeline.isolation.test.ts`: Positive proof attestation on Sepolia & Creditcoin.
+- `pipeline.isolation.test.ts`: Real positive proof attestation on Sepolia & Creditcoin via ProverAPI.
 - `streak.isolation.test.ts`: Absence proof generation on missed vs checked-in days.
 - `streak.e2e.test.ts`: Full 4-step E2E lifecycle (check-in, consecutive count, blocked invalid break, verified absence reset).
 
@@ -206,7 +206,32 @@ npm run build
 
 ---
 
-## 🚀 Quick Start & Local Execution
+## 🚀 Production Deployment Guide
+
+### A. Deploy Frontend Web App to Vercel
+1. Import repository to Vercel and select root directory: `frontend`.
+2. Framework Preset: **Next.js**.
+3. Set the following Environment Variables in Project Settings:
+   - `NEXT_PUBLIC_SEPOLIA_RPC_URL`: `https://eth-sepolia.g.alchemy.com/v2/demo`
+   - `NEXT_PUBLIC_INVOICE_REGISTRAR_ADDRESS`: `0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021`
+   - `NEXT_PUBLIC_STREAK_REGISTRY_ADDRESS`: `0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce`
+   - `NEXT_PUBLIC_CREDITCOIN_RPC_URL`: `https://rpc.cc3-testnet.creditcoin.network`
+   - `NEXT_PUBLIC_VAULT_LENDING_ADDRESS`: `0xE8686e4D2856Da637F2c17c71d818911Ec541dE5`
+   - `NEXT_PUBLIC_ACCESS_REGISTRY_ADDRESS`: `0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe`
+   - `NEXT_PUBLIC_STREAK_VERIFIER_ADDRESS`: `0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A`
+   - `NEXT_PUBLIC_STREAK_BADGE_ADDRESS`: `0xfa41181596515986C87A969F51daD5af597eB3b7`
+   - `NEXT_PUBLIC_MOCK_ERC20_ADDRESS`: `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`
+   - `NEXT_PUBLIC_PRICE_ORACLE_ADDRESS`: `0x2279B7A0a67E1418866B777B764380E68Fa0b3ee`
+   - `NEXT_PUBLIC_USC_VERIFIER_PRECOMPILE`: `0x0000000000000000000000000000000000000FD2`
+   - `NEXT_PUBLIC_CHAIN_INFO_PRECOMPILE`: `0x0000000000000000000000000000000000000FD3`
+
+### B. Deploy Proof API Server to Render
+1. Create a Web Service on Render using the Blueprint in [`render.yaml`](render.yaml).
+2. Set `PRIVATE_KEY` in the Render dashboard environment secrets.
+
+---
+
+## 💻 Quick Start & Local Execution
 
 ### 1. Start the Frontend Application
 ```bash
