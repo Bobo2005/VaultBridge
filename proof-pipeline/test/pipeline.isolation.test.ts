@@ -11,7 +11,9 @@ const sepoliaRpc = process.env.SEPOLIA_RPC_URL || '';
 const privateKey = process.env.PRIVATE_KEY || '';
 const creditcoinRpc = process.env.CREDITCOIN_RPC_URL || '';
 const proofBuilderUrl = process.env.CREDITCOIN_PROOF_BUILDER_URL || '';
-const invoiceRegistrarAddress = '0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714'; // from memory.md
+const invoiceRegistrarAddress =
+  process.env.INVOICE_REGISTRAR_ADDRESS ||
+  '0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021';
 
 if (!sepoliaRpc || !privateKey || !creditcoinRpc || !proofBuilderUrl) {
   throw new Error('Missing SEPOLIA_RPC_URL, PRIVATE_KEY, CREDITCOIN_RPC_URL, or CREDITCOIN_PROOF_BUILDER_URL in environment');

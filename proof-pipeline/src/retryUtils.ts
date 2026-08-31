@@ -4,9 +4,9 @@ import { ethers } from "ethers";
  * Default fallback RPC endpoints for Sepolia and Creditcoin USC
  */
 export const SEPOLIA_FALLBACK_RPCS = [
-  "https://rpc.sepolia.org",
-  "https://1rpc.io/sepolia",
+  "https://eth-sepolia.g.alchemy.com/v2/demo",
   "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://1rpc.io/sepolia",
 ];
 
 export const CREDITCOIN_FALLBACK_RPCS = [

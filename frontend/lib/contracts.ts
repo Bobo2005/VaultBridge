@@ -34,7 +34,7 @@ export const CONTRACT_ADDRESSES = {
       "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",
     mockPriceOracle:
       process.env.NEXT_PUBLIC_PRICE_ORACLE_ADDRESS ||
-      "0x6b175474e89094c44da98b954eedeac495271d0f",
+      "0x2279B7A0a67E1418866B777B764380E68Fa0b3ee",
     verifierPrecompile: "0x0000000000000000000000000000000000000FD2",
     chainInfoPrecompile: "0x0000000000000000000000000000000000000FD3",
     explorerUrl: "https://creditcoin-testnet.blockscout.com",

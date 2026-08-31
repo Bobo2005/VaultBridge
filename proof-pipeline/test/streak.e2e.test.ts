@@ -161,7 +161,7 @@ describe("StreakChain Full End-to-End Integration (Milestones S1–S3)", () => {
     };
 
     const absenceProof = await generateStreakAbsenceProof(
-      "https://rpc.sepolia.org",
+      "https://eth-sepolia.g.alchemy.com/v2/demo",
       "https://rpc.cc3-testnet.creditcoin.network",
       "0x5FbDB2315678afecb367f032d93F642f64180aa3",
       streakId,

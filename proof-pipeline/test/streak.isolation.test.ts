@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 import { generateStreakAbsenceProof } from "../src/generateStreakAbsenceProof";
 
 describe("StreakChain Absence Proof Pipeline (Milestone S2)", () => {
-  const sepoliaRpcUrl = process.env.SEPOLIA_RPC_URL || "https://rpc.sepolia.org";
+  const sepoliaRpcUrl = process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/demo";
   const creditcoinRpcUrl = process.env.CREDITCOIN_RPC_URL || "https://rpc.cc3-testnet.creditcoin.network";
   const proofBuilderUrl = process.env.CREDITCOIN_PROOF_BUILDER_URL || "https://prover.cc3-testnet.creditcoin.network";
   const streakRegistryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";

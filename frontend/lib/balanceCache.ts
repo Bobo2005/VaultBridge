@@ -234,7 +234,7 @@ export async function fetchWalletBalancesWithCache(
         const onChainUsdc = parseFloat(formatUnits(usdcRaw, decimals));
         if (storedLocalUsdc !== null) {
           const localVal = parseFloat(storedLocalUsdc);
-          const finalVal = Math.max(onChainUsdc, localVal);
+          const finalVal = Math.max(0, localVal);
           usdcBalanceFormatted = finalVal.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
