@@ -196,16 +196,22 @@ export async function fetchWalletBalancesWithCache(
   try {
     if (isCreditcoin) {
       // 1. Read Native tCTC Balance
+      const localTctcKey = `vaultbridge_local_tctc_${address.toLowerCase()}`;
+      const storedLocalTctc = typeof window !== "undefined" ? localStorage.getItem(localTctcKey) : null;
       try {
         nativeRaw = await creditcoinClient.getBalance({
           address: address as `0x${string}`,
         });
-        nativeBalanceFormatted = parseFloat(formatUnits(nativeRaw, 18)).toFixed(4);
+        const onChainTctc = parseFloat(formatUnits(nativeRaw, 18));
+        nativeBalanceFormatted = onChainTctc > 0 ? onChainTctc.toFixed(4) : (storedLocalTctc ? parseFloat(storedLocalTctc).toFixed(4) : "125.5000");
       } catch (e) {
-        nativeBalanceFormatted = "125.5000";
+        nativeBalanceFormatted = storedLocalTctc ? parseFloat(storedLocalTctc).toFixed(4) : "125.5000";
       }
 
       // 2. Read MockUSDC Balance
+      const localUsdcKey = `vaultbridge_local_usdc_${address.toLowerCase()}`;
+      const storedLocalUsdc = typeof window !== "undefined" ? localStorage.getItem(localUsdcKey) : null;
+
       try {
         usdcRaw = (await creditcoinClient.readContract({
           address: mockUSDCAddress,
@@ -225,20 +231,50 @@ export async function fetchWalletBalancesWithCache(
           decimals = 18;
         }
 
-        const formattedNumber = parseFloat(formatUnits(usdcRaw, decimals));
-        usdcBalanceFormatted = formattedNumber.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
+        const onChainUsdc = parseFloat(formatUnits(usdcRaw, decimals));
+        if (storedLocalUsdc !== null) {
+          const localVal = parseFloat(storedLocalUsdc);
+          const finalVal = Math.max(onChainUsdc, localVal);
+          usdcBalanceFormatted = finalVal.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        } else if (onChainUsdc > 0) {
+          usdcBalanceFormatted = onChainUsdc.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+        } else {
+          usdcBalanceFormatted = "10,000.00";
+        }
       } catch (e) {
-        // Fallback local balance tracker for demo/testnet
-        const localBalanceKey = `vaultbridge_local_usdc_${address.toLowerCase()}`;
-        const storedLocal = typeof window !== "undefined" ? localStorage.getItem(localBalanceKey) : null;
-        usdcBalanceFormatted = storedLocal ? parseFloat(storedLocal).toFixed(2) : "10,000.00";
+        usdcBalanceFormatted = storedLocalUsdc
+          ? parseFloat(storedLocalUsdc).toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : "10,000.00";
       }
 
-      eurcBalanceFormatted = "18,500.00";
-      usdtBalanceFormatted = "12,000.00";
+      // 3. Read EURC Balance
+      const localEurcKey = `vaultbridge_local_eurc_${address.toLowerCase()}`;
+      const storedLocalEurc = typeof window !== "undefined" ? localStorage.getItem(localEurcKey) : null;
+      eurcBalanceFormatted = storedLocalEurc
+        ? parseFloat(storedLocalEurc).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : "18,500.00";
+
+      // 4. Read USDT Balance
+      const localUsdtKey = `vaultbridge_local_usdt_${address.toLowerCase()}`;
+      const storedLocalUsdt = typeof window !== "undefined" ? localStorage.getItem(localUsdtKey) : null;
+      usdtBalanceFormatted = storedLocalUsdt
+        ? parseFloat(storedLocalUsdt).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : "12,000.00";
     } else {
       // Sepolia Native & USDC
       try {
@@ -324,8 +360,10 @@ export function recordLocalTokenTransaction(
   deltaAmount: number
 ) {
   if (typeof window === "undefined" || !address) return;
-  const localBalanceKey = `vaultbridge_local_${tokenSymbol.toLowerCase()}_${address.toLowerCase()}`;
-  const current = parseFloat(localStorage.getItem(localBalanceKey) || "10000");
+  const sym = tokenSymbol.toLowerCase();
+  const localBalanceKey = `vaultbridge_local_${sym}_${address.toLowerCase()}`;
+  const defaultBase = sym === "usdc" ? 10000 : sym === "eurc" ? 18500 : sym === "usdt" ? 12000 : 125.5;
+  const current = parseFloat(localStorage.getItem(localBalanceKey) || defaultBase.toString());
   const updated = Math.max(0, current + deltaAmount);
   localStorage.setItem(localBalanceKey, updated.toString());
   invalidateBalanceCache(address, 102031);

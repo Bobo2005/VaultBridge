@@ -260,7 +260,7 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 bg-bg p-1 rounded-btn border border-border">
+        <div className="flex flex-wrap items-center gap-1 bg-bg p-1 rounded-btn border border-border">
           <button
             onClick={() => setActiveViewerRole("owner")}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
@@ -279,7 +279,7 @@ export default function InvoiceDetailPage() {
                 : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Auditor & Partner View (Permission Granted)
+            Auditor View
           </button>
           <button
             onClick={() => setActiveViewerRole("unauthorized")}
@@ -289,7 +289,7 @@ export default function InvoiceDetailPage() {
                 : "text-ink-secondary hover:text-ink"
             }`}
           >
-            Unauthorized Viewer (Confidential)
+            Unauthorized View
           </button>
         </div>
       </div>

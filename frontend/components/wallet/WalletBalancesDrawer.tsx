@@ -61,7 +61,7 @@ export const WalletBalancesDrawer: React.FC<WalletBalancesDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-end z-50 animate-in fade-in duration-150">
-      <div className="bg-surface border-l border-border shadow-2xl max-w-md w-full h-full p-6 space-y-6 flex flex-col justify-between overflow-y-auto">
+      <div className="bg-surface border-l border-border shadow-2xl max-w-md w-full h-full p-4 sm:p-6 space-y-6 flex flex-col justify-between overflow-y-auto">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border pb-4">

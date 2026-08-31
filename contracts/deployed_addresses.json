@@ -1,6 +1,19 @@
 {
-  "mockERC20": "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",
-  "vaultLending": "0xE8686e4D2856Da637F2c17c71d818911Ec541dE5",
-  "network": "creditcoin_usc_testnet",
-  "timestamp": "2026-08-29T09:06:36.543Z"
+  "creditcoin": {
+    "chainId": 102031,
+    "mockERC20": "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",
+    "vaultLending": "0xE8686e4D2856Da637F2c17c71d818911Ec541dE5",
+    "accessRegistry": "0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe",
+    "streakBadge": "0xfa41181596515986C87A969F51daD5af597eB3b7",
+    "streakVerifier": "0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A",
+    "mockPriceOracle": "0x2279B7A0a67E1418866B777B764380E68Fa0b3ee",
+    "precompileVerifier": "0x0000000000000000000000000000000000000FD2",
+    "chainInfoPrecompile": "0x0000000000000000000000000000000000000FD3"
+  },
+  "sepolia": {
+    "chainId": 11155111,
+    "invoiceRegistrar": "0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021",
+    "streakRegistry": "0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce"
+  },
+  "timestamp": "2026-08-30T23:45:00.000Z"
 }

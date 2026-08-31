@@ -9,10 +9,10 @@ export const CONTRACT_ADDRESSES = {
     chainKey: 1,
     invoiceRegistrar:
       process.env.NEXT_PUBLIC_INVOICE_REGISTRAR_ADDRESS ||
-      "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",
+      "0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021",
     streakRegistry:
       process.env.NEXT_PUBLIC_STREAK_REGISTRY_ADDRESS ||
-      "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",
+      "0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce",
     explorerUrl: "https://sepolia.etherscan.io",
   },
   creditcoin: {
@@ -22,13 +22,13 @@ export const CONTRACT_ADDRESSES = {
       "0xE8686e4D2856Da637F2c17c71d818911Ec541dE5",
     accessRegistry:
       process.env.NEXT_PUBLIC_ACCESS_REGISTRY_ADDRESS ||
-      "0x6b175474e89094c44da98b954eedeac495271d0f",
+      "0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe",
     streakVerifier:
       process.env.NEXT_PUBLIC_STREAK_VERIFIER_ADDRESS ||
-      "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A",
     streakBadge:
       process.env.NEXT_PUBLIC_STREAK_BADGE_ADDRESS ||
-      "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "0xfa41181596515986C87A969F51daD5af597eB3b7",
     mockERC20:
       process.env.NEXT_PUBLIC_MOCK_ERC20_ADDRESS ||
       "0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714",

@@ -240,7 +240,7 @@ export const ShareAccessPanel: React.FC<ShareAccessPanelProps> = ({ invoiceId })
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <span className="text-[11px] text-ink-secondary">
               Immediately authorizes decryption permissions for designated party.
             </span>
@@ -250,6 +250,7 @@ export const ShareAccessPanel: React.FC<ShareAccessPanelProps> = ({ invoiceId })
               icon={<UserPlus className="w-4 h-4" />}
               isLoading={isProcessing}
               type="submit"
+              className="w-full sm:w-auto"
             >
               Grant & Authorize Access
             </Button>

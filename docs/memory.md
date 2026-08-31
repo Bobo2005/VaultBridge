@@ -25,12 +25,11 @@
 | 2026-08-30 | StreakVerifier Clock-Skew & Grace Window | Implemented `BOUNDARY_GRACE_PERIOD` (15 min) in `StreakVerifier.sol`. Added unit test validating border check-ins at 23:59:45 UTC advance consecutive count without duplicate reverts (41/41 tests passing). |
 | 2026-08-30 | Judge Speedrun Demo Mode (`JudgeDemoModal.tsx`) | Built 1-click 10-second end-to-end walkthrough modal in TopBar with auto-play speedrun across Encryption, Merkle Proof, Tier A LTV, and Soulbound NFT Badges. |
 | 2026-08-30 | Autonomous Keeper Webhooks & SSE Feed | Integrated Discord & Telegram webhooks in `keeper.ts`, added SSE stream at `/api/events/stream`, and built live ticker in `LiveAttestationFeed.tsx` with Blockscout links. |
-| 2026-08-30 | Competitive Benchmark & ZK Stealth Roadmap | Added comparison matrix (0x0FD2 vs LayerZero/Wormhole/Chainlink) in `how-it-works/page.tsx` and interactive ZK stealth address simulation on `/invoices/[id]/share`. |
-| 2026-08-30 | Production & Dev Chunk Collision Fix | Added `transpilePackages: ["wagmi", "viem", "@wagmi/core"]` in `next.config.js` and automated `.next` cache auto-cleaning in `npm run dev` to eliminate stale production chunk hash collisions (`./554.js`, `./vendor-chunks/...`). |
-| 2026-08-30 | Real On-Chain Testnet Liquidity & Wallet Disbursement | Wired `MockERC20.sol` public `faucet(address to, uint256 amount)` method up to 10,000 USDC on Creditcoin Testnet. Added 1-click Claim Faucet buttons, wired `VaultLending.borrow()` to physically disburse tokens to connected wallets, and `VaultLending.repay()` to debit tokens upon repayment. |
-| 2026-08-30 | Privacy Layer On-Chain Storage & Deterministic Commitment | Built client-side AES-256-GCM encryption with 256-bit keys and `computeCommitment = sha256(ciphertext)`. Zero plaintext business data stored on Creditcoin. Added `useInvoiceDecryption` hook for client-side decryption. |
-| 2026-08-30 | Selective Permissioned Sharing & Instant Revocation | Built ECIES key wrapping delegation for designated roles: `Verified Auditor (KPMG/Deloitte)`, `Institutional Lender`, `Tax Compliance Officer`. Added 1-click `revokeAccess()` wiping permissions immediately on-chain. |
-| 2026-08-30 | Enterprise FinTech Copy & Terminology Revamp | Overhauled all UI write-ups across Dashboard, Invoices, Detail, and Facilities: *Verified Accounts Receivable*, *Instant Verification Engine*, *Working Capital Credit Facilities*, *Yield & Liquidity Vault*, *Draw Working Capital*, and *Authorize & Repay Loan*. |
+| 2026-08-30 | Real On-Chain Testnet Liquidity & Wallet Disbursement | Wired `MockERC20.sol` public `faucet` method on Creditcoin Testnet. Added 1-click Claim Faucet buttons, wired `VaultLending.borrow()` to physically disburse tokens to connected wallets, and `VaultLending.repay()` to debit tokens upon repayment. |
+| 2026-08-31 | Full Frontend Responsiveness Across Mobile/Tablet/Desktop | Built adaptive AppShell with slide-over drawer backdrop, sticky mobile header, bottom mobile navigation bar, responsive data tables (`overflow-x-auto`), and fluid typography across all pages. |
+| 2026-08-31 | Massive Testnet Liquidity (51,000,000 USDC On-Chain) | Minted 50M MockUSDC directly into `VaultLending.sol` and 5M MockUSDC to user wallet via `mint_huge_liquidity.js`. Verified 51M USDC pool balance. |
+| 2026-08-31 | Multi-Stage Interactive Loading States | Added multi-step animated progress bars and stage status indicators across Wallet Connect, Borrowing, Repaying, Yield Vault Deposits/Withdrawals, and Faucet minting. |
+| 2026-08-31 | Multi-Tier Faucet Amounts (+10k, +50k, +100k, +1M USDC) | Extended `/api/faucet` and `ClaimFaucetButton.tsx` to support claiming up to 1,000,000 USDC in 1-click for large institutional facility testing. |
 
 ## Soulbound StreakBadge Call Pattern
 - **Contract Interface:** `StreakBadge.mintMilestoneBadge(address to, bytes32 streakId, uint256 milestoneDays)`
@@ -43,7 +42,7 @@
 
 ### V1 Milestones (100% Complete)
 - [x] **M1**: Verified end-to-end proof generation & verification (`pipeline.isolation.test.ts` passed live on Sepolia & Creditcoin).
-- [x] **M2**: `InvoiceRegistrar.sol` deployed on Sepolia (`0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`); `VaultLending.sol` implemented with 15/15 passing tests.
+- [x] **M2**: `InvoiceRegistrar.sol` deployed on Sepolia (`0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021`); `VaultLending.sol` implemented with 15/15 passing tests.
 - [x] **M3**: Dynamic risk-tiered borrowing (Tier A 80%, Tier B 70%, Tier C 50% LTV) across multi-asset collateral (USDC, EURC, USDT).
 - [x] **M4**: Payment attestation & collateral release (`releaseOnPayment`) verified via precompile `0x0FD2`.
 - [x] **M5**: Attested default trigger (`liquidateOnDefault`) via absence-of-payment proof implemented and tested.
@@ -56,28 +55,31 @@
 - [x] **P3**: `VaultLending.sol` migrated to commitment+pointer storage (no plaintext on-chain).
 - [x] **P4**: Full selective access flow & decryption read path live in UI (`/invoices/[id]/share` + client-side AES-GCM decryption with viewer role simulation).
 - [x] **P5**: Real on-chain token movement with faucet (`MockERC20.sol`) and interactive wallet disbursement / repayment.
-- [x] **P6**: Yield & Liquidity Vault (`depositLiquidity` / `withdrawLiquidity`) earning 8.5% APY.
+- [x] **P6**: Yield & Liquidity Vault (`depositLiquidity` / `withdrawLiquidity`) earning 8.5% APY with **51,000,000 USDC on-chain liquidity**.
 
-### Advanced Wallet Suite (100% Complete)
-- [x] **W1**: Multi-provider wallet connect modal (MetaMask, Coinbase, WalletConnect, Rainbow, Brave, Injected).
+### Advanced Wallet Suite & Responsiveness (100% Complete)
+- [x] **W1**: Multi-provider wallet connect modal (MetaMask, Coinbase, WalletConnect, Rainbow, Brave, Injected) with animated handshake loading states.
 - [x] **W2**: Network auto-switching modal with user confirmation between Ethereum Sepolia (`11155111`) & Creditcoin Testnet (`102031`).
-- [x] **W3**: Multi-asset balance caching (`balanceCache.ts`) with 30s TTL to prevent RPC rate limits.
+- [x] **W3**: Multi-asset balance caching (`balanceCache.ts`) with live RPC queries and instant UI event bus synchronization.
 - [x] **W4**: Address Book modal (`addressBook.ts`) for saving frequent debtor, auditor, and treasury contacts.
 - [x] **W5**: QR Code modal (`QrModal.tsx`) with high-contrast address QR display and camera scanner.
+- [x] **W6**: Full mobile/tablet responsiveness (drawer, bottom nav bar, sticky mobile header, modal scrolling).
 
 ### V2 StreakChain Module (100% Complete)
-- [x] **S1**: `StreakRegistry.sol` deployed on Ethereum Sepolia (`0x5FbDB2315678afecb367f032d93F642f64180aa3` / `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714`).
+- [x] **S1**: `StreakRegistry.sol` deployed on Ethereum Sepolia (`0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce`).
 - [x] **S2**: Streak absence-proof pipeline verified in isolation (`generateStreakAbsenceProof.ts` + `streak.isolation.test.ts` passing).
-- [x] **S3**: `StreakVerifier.sol` + `StreakBadge.sol` deployed on Creditcoin (`0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512` / `0x5FbDB2315678afecb367f032d93F642f64180aa3`), `submitStreakProof.ts` wired, and `streak.e2e.test.ts` passing.
+- [x] **S3**: `StreakVerifier.sol` + `StreakBadge.sol` deployed on Creditcoin (`0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A` / `0xfa41181596515986C87A969F51daD5af597eB3b7`), `submitStreakProof.ts` wired, and `streak.e2e.test.ts` passing.
 - [x] **S4**: Streak dashboard (`/streaks`), `StreakLeaderboard.tsx`, `/streaks/[id]` with `ProofProgressRing` & `LiveAttestationFeed` and public proof sharing live.
-- [x] **F1**: Both modules integrated into one sidebar/platform, README updated, submission-ready.
+- [x] **F1**: Both modules integrated into one unified platform, README updated, submission-ready.
 
 ## Deployed & Verified Addresses
-- **InvoiceRegistrar.sol (Sepolia):** `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714` ✅
-- **StreakRegistry.sol (Sepolia):** `0x5FbDB2315678afecb367f032d93F642f64180aa3` ✅
-- **VaultLending.sol (Creditcoin):** `0xE8686e4D2856Da637F2c17c71d818911Ec541dE5` ✅
-- **AccessRegistry.sol (Creditcoin):** `0x6b175474e89094c44da98b954eedeac495271d0f` ✅
-- **StreakVerifier.sol (Creditcoin):** `0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512` ✅
-- **StreakBadge.sol (Creditcoin):** `0x5FbDB2315678afecb367f032d93F642f64180aa3` ✅
+- **InvoiceRegistrar.sol (Sepolia):** `0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021` ✅
+- **StreakRegistry.sol (Sepolia):** `0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce` ✅
+- **VaultLending.sol (Creditcoin):** `0xE8686e4D2856Da637F2c17c71d818911Ec541dE5` ✅ (Funded with **51,000,000 USDC**)
+- **AccessRegistry.sol (Creditcoin):** `0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe` ✅
+- **StreakBadge.sol (Creditcoin):** `0xfa41181596515986C87A969F51daD5af597eB3b7` ✅
+- **StreakVerifier.sol (Creditcoin):** `0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A` ✅
 - **MockERC20.sol (Creditcoin):** `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714` ✅
-- **Precompile Verifier:** `0x0000000000000000000000000000000000000FD2` ⚡
+- **MockPriceOracle.sol (Creditcoin):** `0x2279B7A0a67E1418866B777B764380E68Fa0b3ee` ✅
+- **Precompile Verifier (Creditcoin):** `0x0000000000000000000000000000000000000FD2` ⚡
+- **ChainInfo Precompile (Creditcoin):** `0x0000000000000000000000000000000000000FD3` ⚡

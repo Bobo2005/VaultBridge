@@ -180,27 +180,76 @@ let LOANS_STORE: LoanRecord[] = [
   },
 ];
 
+// Storage Keys for persistent real ledger
+const INVOICES_STORAGE_KEY = "vaultbridge_invoices_ledger_v2";
+const LOANS_STORAGE_KEY = "vaultbridge_loans_ledger_v2";
+
+function getStoredInvoices(): InvoiceRecord[] {
+  if (typeof window === "undefined") return INVOICES_STORE;
+  try {
+    const raw = localStorage.getItem(INVOICES_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return INVOICES_STORE;
+}
+
+function setStoredInvoices(invoices: InvoiceRecord[]): void {
+  INVOICES_STORE = invoices;
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(INVOICES_STORAGE_KEY, JSON.stringify(invoices));
+    } catch {}
+  }
+}
+
+function getStoredLoans(): LoanRecord[] {
+  if (typeof window === "undefined") return LOANS_STORE;
+  try {
+    const raw = localStorage.getItem(LOANS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return LOANS_STORE;
+}
+
+function setStoredLoans(loans: LoanRecord[]): void {
+  LOANS_STORE = loans;
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(LOANS_STORAGE_KEY, JSON.stringify(loans));
+    } catch {}
+  }
+}
+
 export const VaultBridgeAPI = {
   async getInvoices(): Promise<InvoiceRecord[]> {
-    return [...INVOICES_STORE];
+    return [...getStoredInvoices()];
   },
 
   async getInvoiceById(id: string): Promise<InvoiceRecord | undefined> {
-    return INVOICES_STORE.find((i) => i.id === id);
+    const invoices = getStoredInvoices();
+    return invoices.find((i) => i.id === id || i.invoiceIdHex === id);
   },
 
   async getLoans(): Promise<LoanRecord[]> {
-    return [...LOANS_STORE];
+    return [...getStoredLoans()];
   },
 
   async issueInvoice(params: {
     amountEth: number;
     debtor: string;
     riskTier?: "Tier A (Prime 80%)" | "Tier B (Standard 70%)" | "Tier C (Subprime 50%)";
+    txHash?: string;
   }): Promise<InvoiceRecord> {
-    const idNum = INVOICES_STORE.length + 1;
+    const currentInvoices = getStoredInvoices();
+    const idNum = currentInvoices.length + 1;
     const invId = `INV-2026-${idNum.toString().padStart(3, "0")}`;
-    const txHash = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+    const txHash = params.txHash || "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
 
     const tier = params.riskTier || "Tier B (Standard 70%)";
     const ltvBps = tier.includes("80") ? 8000 : tier.includes("50") ? 5000 : 7000;
@@ -235,7 +284,8 @@ export const VaultBridgeAPI = {
       isEncrypted: true,
     };
 
-    INVOICES_STORE = [newInv, ...INVOICES_STORE];
+    const updated = [newInv, ...currentInvoices];
+    setStoredInvoices(updated);
     return newInv;
   },
 
@@ -243,7 +293,8 @@ export const VaultBridgeAPI = {
     invoiceId: string,
     onProgress: (step: number, percent: number, title: string) => void
   ): Promise<InvoiceRecord> {
-    const inv = INVOICES_STORE.find((i) => i.id === invoiceId);
+    const currentInvoices = getStoredInvoices();
+    const inv = currentInvoices.find((i) => i.id === invoiceId);
     if (!inv) throw new Error("Invoice not found");
 
     onProgress(1, 15, "1/4: Querying Sepolia InvoiceRegistrar block inclusion...");
@@ -259,17 +310,21 @@ export const VaultBridgeAPI = {
     inv.status = "Attested";
     inv.attestedHeight = 11566330;
 
+    setStoredInvoices([...currentInvoices]);
     return { ...inv };
   },
 
   async borrowLiquidity(invoiceId: string, amountUsd: number, token: string = "USDC"): Promise<LoanRecord> {
-    const inv = INVOICES_STORE.find((i) => i.id === invoiceId);
+    const currentInvoices = getStoredInvoices();
+    const inv = currentInvoices.find((i) => i.id === invoiceId);
     if (!inv) throw new Error("Invoice not found");
 
     inv.status = "Borrowed";
     inv.borrowedAmountUsd = amountUsd;
     inv.borrowedToken = token;
+    setStoredInvoices([...currentInvoices]);
 
+    const currentLoans = getStoredLoans();
     const loanId = `LOAN-${Math.floor(1000 + Math.random() * 9000)}`;
     const newLoan: LoanRecord = {
       id: loanId,
@@ -284,29 +339,44 @@ export const VaultBridgeAPI = {
       dueDateBlock: inv.dueDateBlock,
     };
 
-    LOANS_STORE = [newLoan, ...LOANS_STORE];
+    const updatedLoans = [newLoan, ...currentLoans];
+    setStoredLoans(updatedLoans);
     return newLoan;
   },
 
   async simulatePayment(invoiceId: string): Promise<InvoiceRecord> {
-    const inv = INVOICES_STORE.find((i) => i.id === invoiceId);
+    const currentInvoices = getStoredInvoices();
+    const inv = currentInvoices.find((i) => i.id === invoiceId);
     if (!inv) throw new Error("Invoice not found");
 
     inv.status = "Paid";
-    const loan = LOANS_STORE.find((l) => l.invoiceId === invoiceId);
-    if (loan) loan.status = "Repaid";
+    setStoredInvoices([...currentInvoices]);
+
+    const currentLoans = getStoredLoans();
+    const loan = currentLoans.find((l) => l.invoiceId === invoiceId);
+    if (loan) {
+      loan.status = "Repaid";
+      setStoredLoans([...currentLoans]);
+    }
 
     return { ...inv };
   },
 
   async triggerDefaultCheck(invoiceId: string): Promise<{ liquidated: boolean; reason: string }> {
-    const inv = INVOICES_STORE.find((i) => i.id === invoiceId);
+    const currentInvoices = getStoredInvoices();
+    const inv = currentInvoices.find((i) => i.id === invoiceId);
     if (!inv) throw new Error("Invoice not found");
 
     if (inv.id === "INV-2026-004") {
       inv.status = "Defaulted";
-      const loan = LOANS_STORE.find((l) => l.invoiceId === invoiceId);
-      if (loan) loan.status = "Liquidated";
+      setStoredInvoices([...currentInvoices]);
+
+      const currentLoans = getStoredLoans();
+      const loan = currentLoans.find((l) => l.invoiceId === invoiceId);
+      if (loan) {
+        loan.status = "Liquidated";
+        setStoredLoans([...currentLoans]);
+      }
       return {
         liquidated: true,
         reason: "Absence-of-payment proof verified on Sepolia block #11565000 via Precompile 0x0FD2. Collateral liquidated to lenders.",

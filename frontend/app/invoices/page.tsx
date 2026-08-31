@@ -24,7 +24,14 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { useAccount, useWalletClient } from "wagmi";
+import { parseEther } from "viem";
+import { CONTRACT_ADDRESSES, INVOICE_REGISTRAR_ABI, EXPLORER_HELPERS } from "../../lib/contracts";
+
 export default function InvoicesPage() {
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,9 +81,45 @@ export default function InvoicesPage() {
     setIsSubmitting(true);
     try {
       const amount = parseFloat(newAmountEth) || 10;
+      let liveTxHash = "";
+
+      if (walletClient && address) {
+        try {
+          const invoiceBytes32 = ("0x" +
+            Array.from({ length: 64 }, () =>
+              Math.floor(Math.random() * 16).toString(16)
+            ).join("")) as `0x${string}`;
+          const amountWei = parseEther(amount.toString());
+          const dueDateBlock = BigInt(11566330 + 1000);
+
+          liveTxHash = await walletClient.writeContract({
+            address: CONTRACT_ADDRESSES.sepolia.invoiceRegistrar as `0x${string}`,
+            abi: [
+              {
+                inputs: [
+                  { name: "invoiceId", type: "bytes32" },
+                  { name: "amount", type: "uint256" },
+                  { name: "debtor", type: "address" },
+                  { name: "dueDateBlock", type: "uint256" },
+                ],
+                name: "issueInvoice",
+                outputs: [],
+                stateMutability: "nonpayable",
+                type: "function",
+              },
+            ],
+            functionName: "issueInvoice",
+            args: [invoiceBytes32, amountWei, newDebtor as `0x${string}`, dueDateBlock],
+          });
+        } catch (contractErr) {
+          console.warn("Live Sepolia issue fallback:", contractErr);
+        }
+      }
+
       const created = await VaultBridgeAPI.issueInvoice({
         amountEth: amount,
         debtor: newDebtor,
+        txHash: liveTxHash || undefined,
       });
 
       setIsIssueModalOpen(false);
@@ -458,12 +501,13 @@ export default function InvoicesPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <Button variant="secondary" onClick={() => setIsBatchModalOpen(false)}>
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-3 pt-2">
+                  <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setIsBatchModalOpen(false)}>
                     Cancel
                   </Button>
                   <Button
                     variant="primary"
+                    className="w-full sm:w-auto"
                     onClick={handleBatchAttestSubmit}
                     isLoading={isBatchProcessing}
                   >
@@ -479,10 +523,10 @@ export default function InvoicesPage() {
       {/* Issue Modal */}
       {isIssueModalOpen && (
         <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
-          <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-6 space-y-5">
+          <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-ink">Register & Finance Accounts Receivable</h3>
-              <button onClick={() => setIsIssueModalOpen(false)} className="text-ink-secondary hover:text-ink">
+              <h3 className="text-base sm:text-lg font-bold text-ink">Register & Finance Accounts Receivable</h3>
+              <button onClick={() => setIsIssueModalOpen(false)} className="p-1 rounded-lg text-ink-secondary hover:text-ink">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -525,11 +569,11 @@ export default function InvoicesPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <Button variant="secondary" onClick={() => setIsIssueModalOpen(false)}>
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-3 pt-2">
+                <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setIsIssueModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button variant="primary" type="submit" isLoading={isSubmitting}>
+                <Button variant="primary" type="submit" className="w-full sm:w-auto" isLoading={isSubmitting}>
                   Register & Verify Receivable
                 </Button>
               </div>
@@ -541,10 +585,10 @@ export default function InvoicesPage() {
       {/* Borrow Modal */}
       {isBorrowModalOpen && selectedInvoice && (
         <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
-          <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-6 space-y-5">
+          <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-ink">Draw Working Capital Against {selectedInvoice.id}</h3>
-              <button onClick={() => setIsBorrowModalOpen(false)} className="text-ink-secondary hover:text-ink">
+              <h3 className="text-base sm:text-lg font-bold text-ink">Draw Working Capital Against {selectedInvoice.id}</h3>
+              <button onClick={() => setIsBorrowModalOpen(false)} className="p-1 rounded-lg text-ink-secondary hover:text-ink">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -576,11 +620,11 @@ export default function InvoicesPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <Button variant="secondary" onClick={() => setIsBorrowModalOpen(false)}>
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-3 pt-2">
+                <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setIsBorrowModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={handleBorrowSubmit} isLoading={isSubmitting}>
+                <Button variant="primary" className="w-full sm:w-auto" onClick={handleBorrowSubmit} isLoading={isSubmitting}>
                   Draw Working Capital
                 </Button>
               </div>

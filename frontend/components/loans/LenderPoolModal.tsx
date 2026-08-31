@@ -38,6 +38,7 @@ export const LenderPoolModal: React.FC<{
   const [amount, setAmount] = useState<number>(5000);
   const [depositedBalance, setDepositedBalance] = useState<number>(25000);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [successAction, setSuccessAction] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -72,10 +73,15 @@ export const LenderPoolModal: React.FC<{
   if (!isOpen) return null;
 
   const handleDeposit = async () => {
+    if (amount <= 0) return;
     setIsProcessing(true);
     setErrorMsg(null);
+    setLoadingStatus("1/2: Authorizing & transferring capital to Yield & Liquidity Vault...");
 
     try {
+      await new Promise((r) => setTimeout(r, 600));
+      setLoadingStatus("2/2: Minting yield-bearing shares & activating 8.50% APY earnings...");
+
       let hash = "";
       const depositWei = parseUnits(amount.toString(), 18);
 
@@ -126,6 +132,8 @@ export const LenderPoolModal: React.FC<{
         hash = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
       }
 
+      await new Promise((r) => setTimeout(r, 600));
+
       // Update deposited pool state & deduct from wallet
       const newDeposited = depositedBalance + amount;
       setDepositedBalance(newDeposited);
@@ -138,11 +146,13 @@ export const LenderPoolModal: React.FC<{
 
       setSuccessAction(`Deposited $${amount.toLocaleString()} USDC`);
       setTxHash(hash);
+      setLoadingStatus(null);
     } catch (err: any) {
       console.error("Deposit error:", err);
       setErrorMsg(err.message || "Failed to deposit liquidity");
     } finally {
       setIsProcessing(false);
+      setLoadingStatus(null);
     }
   };
 
@@ -154,8 +164,12 @@ export const LenderPoolModal: React.FC<{
 
     setIsProcessing(true);
     setErrorMsg(null);
+    setLoadingStatus("1/2: Redeeming pool shares from institutional credit facility...");
 
     try {
+      await new Promise((r) => setTimeout(r, 600));
+      setLoadingStatus("2/2: Confirming redemption & transferring USDC back into wallet...");
+
       let hash = "";
       const withdrawWei = parseUnits(amount.toString(), 18);
 
@@ -186,6 +200,8 @@ export const LenderPoolModal: React.FC<{
         hash = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
       }
 
+      await new Promise((r) => setTimeout(r, 600));
+
       // Return tokens to wallet & update pool balance
       const newDeposited = Math.max(0, depositedBalance - amount);
       setDepositedBalance(newDeposited);
@@ -198,17 +214,19 @@ export const LenderPoolModal: React.FC<{
 
       setSuccessAction(`Withdrew $${amount.toLocaleString()} USDC`);
       setTxHash(hash);
+      setLoadingStatus(null);
     } catch (err: any) {
       console.error("Withdraw error:", err);
       setErrorMsg(err.message || "Failed to withdraw liquidity");
     } finally {
       setIsProcessing(false);
+      setLoadingStatus(null);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-ink/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
-      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-6 space-y-6">
+      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2.5">
@@ -332,6 +350,23 @@ export const LenderPoolModal: React.FC<{
                 </button>
               </div>
             </div>
+
+            {isProcessing && (
+              <div className="p-4 bg-gradient-to-br from-primary-tint/80 to-surface border border-primary/30 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-primary flex items-center gap-1.5">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>{activeTab === "deposit" ? "Supplying Vault Liquidity" : "Processing Vault Withdrawal"}</span>
+                  </span>
+                  <span className="font-mono font-bold text-ink">Active Protocol Call</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-ink font-medium">
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  <span>{loadingStatus}</span>
+                </div>
+              </div>
+            )}
 
             {errorMsg && (
               <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">

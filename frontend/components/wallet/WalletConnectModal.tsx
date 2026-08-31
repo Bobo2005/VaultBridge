@@ -14,6 +14,7 @@ import {
   Smartphone,
   Globe,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 
 export interface WalletConnectModalProps {
@@ -79,16 +80,22 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
   });
   const { disconnect } = useDisconnect();
 
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [selectedProviderObj, setSelectedProviderObj] = useState<WalletProviderOption | null>(null);
   const [isConnectingProvider, setIsConnectingProvider] = useState(false);
+  const [connectionStage, setConnectionStage] = useState(1);
 
   if (!isOpen) return null;
 
-  const handleSelectProvider = async (providerId: string) => {
-    setSelectedProvider(providerId);
+  const handleSelectProvider = async (provider: WalletProviderOption) => {
+    setSelectedProviderObj(provider);
     setIsConnectingProvider(true);
+    setConnectionStage(1);
+
     try {
+      await new Promise((r) => setTimeout(r, 600));
+      setConnectionStage(2);
       await connect();
+      await new Promise((r) => setTimeout(r, 400));
       setIsConnectingProvider(false);
       onClose();
     } catch {
@@ -96,9 +103,14 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
     }
   };
 
+  const handleCancelConnecting = () => {
+    setIsConnectingProvider(false);
+    setSelectedProviderObj(null);
+  };
+
   return (
     <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-6 space-y-5">
+      <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -138,13 +150,49 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
               </Button>
             </div>
           </div>
+        ) : isConnectingProvider && selectedProviderObj ? (
+          <div className="p-6 bg-gradient-to-br from-primary-tint/70 to-surface border border-primary/30 rounded-2xl space-y-5 text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-2xl bg-primary/20 animate-ping" />
+              <div className={`w-16 h-16 rounded-2xl ${selectedProviderObj.iconBg} flex items-center justify-center font-bold relative z-10 shadow-lg`}>
+                <Loader2 className="w-8 h-8 animate-spin" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <h4 className="text-sm font-bold text-ink">
+                Connecting to {selectedProviderObj.name}...
+              </h4>
+              <p className="text-xs text-ink-secondary">
+                {connectionStage === 1
+                  ? "Prompting Web3 handshake & account signature..."
+                  : "Synchronizing Creditcoin Testnet & balance cache..."}
+              </p>
+            </div>
+
+            {/* Stage Bar */}
+            <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-500"
+                style={{ width: `${connectionStage === 1 ? 50 : 100}%` }}
+              />
+            </div>
+
+            <p className="text-[11px] text-ink-secondary flex items-center justify-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-success" />
+              Please approve the connection prompt in your wallet
+            </p>
+
+            <Button variant="ghost" size="sm" onClick={handleCancelConnecting} className="mx-auto">
+              Cancel Connection
+            </Button>
+          </div>
         ) : (
           <div className="space-y-2.5">
             {WALLET_PROVIDERS.map((provider) => (
               <button
                 key={provider.id}
-                onClick={() => handleSelectProvider(provider.id)}
-                disabled={isConnectingProvider}
+                onClick={() => handleSelectProvider(provider)}
                 className="w-full p-3 bg-bg hover:bg-primary-tint/40 border border-border hover:border-primary/30 rounded-xl transition-all flex items-center justify-between text-left group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
@@ -184,12 +232,6 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({ isOpen, 
                 </div>
               </button>
             ))}
-
-            {isConnectingProvider && (
-              <div className="p-3 bg-primary-tint/60 border border-primary/20 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-primary animate-pulse">
-                <span>Connecting to {selectedProvider}... Confirm request in wallet.</span>
-              </div>
-            )}
           </div>
         )}
 

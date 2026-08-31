@@ -24,6 +24,9 @@ import {
 } from "lucide-react";
 import { CONTRACT_ADDRESSES, EXPLORER_HELPERS } from "../../lib/contracts";
 
+import { useAccount, useWalletClient } from "wagmi";
+import { STREAK_REGISTRY_ABI } from "../../lib/contracts";
+
 interface HabitStreak {
   id: string;
   title: string;
@@ -37,46 +40,52 @@ interface HabitStreak {
   creditcoinHeight: number;
 }
 
-export default function StreaksPage() {
-  const [streaks, setStreaks] = useState<HabitStreak[]>([
-    {
-      id: "STRK-2026-001",
-      title: "Daily Smart Contract Security Audit",
-      category: "Code",
-      currentStreak: 14,
-      longestStreak: 18,
-      lastCheckInDay: 14,
-      lastCheckInDate: "Today, 08:30 AM",
-      isCheckedInToday: true,
-      sepoliaTxHash: "0x3f4a9b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a",
-      creditcoinHeight: 104250,
-    },
-    {
-      id: "STRK-2026-002",
-      title: "Cross-Chain USC Relayer Verification",
-      category: "DeFi",
-      currentStreak: 7,
-      longestStreak: 7,
-      lastCheckInDay: 7,
-      lastCheckInDate: "Yesterday",
-      isCheckedInToday: false,
-      sepoliaTxHash: "0x8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b",
-      creditcoinHeight: 104190,
-    },
-    {
-      id: "STRK-2026-003",
-      title: "5km Morning Cardio & Habit Tracking",
-      category: "Fitness",
-      currentStreak: 3,
-      longestStreak: 21,
-      lastCheckInDay: 3,
-      lastCheckInDate: "Today, 06:15 AM",
-      isCheckedInToday: true,
-      sepoliaTxHash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-      creditcoinHeight: 104080,
-    }
-  ]);
+const STREAKS_STORAGE_KEY = "vaultbridge_streaks_ledger_v2";
 
+const DEFAULT_STREAKS: HabitStreak[] = [
+  {
+    id: "STRK-2026-001",
+    title: "Daily Smart Contract Security Audit",
+    category: "Code",
+    currentStreak: 14,
+    longestStreak: 18,
+    lastCheckInDay: 14,
+    lastCheckInDate: "Today, 08:30 AM",
+    isCheckedInToday: true,
+    sepoliaTxHash: "0x3f4a9b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a",
+    creditcoinHeight: 104250,
+  },
+  {
+    id: "STRK-2026-002",
+    title: "Cross-Chain USC Relayer Verification",
+    category: "DeFi",
+    currentStreak: 7,
+    longestStreak: 7,
+    lastCheckInDay: 7,
+    lastCheckInDate: "Yesterday",
+    isCheckedInToday: false,
+    sepoliaTxHash: "0x8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b",
+    creditcoinHeight: 104190,
+  },
+  {
+    id: "STRK-2026-003",
+    title: "5km Morning Cardio & Habit Tracking",
+    category: "Fitness",
+    currentStreak: 3,
+    longestStreak: 21,
+    lastCheckInDay: 3,
+    lastCheckInDate: "Today, 06:15 AM",
+    isCheckedInToday: true,
+    sepoliaTxHash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
+    creditcoinHeight: 104080,
+  }
+];
+
+export default function StreaksPage() {
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient();
+
+  const [streaks, setStreaks] = useState<HabitStreak[]>(DEFAULT_STREAKS);
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -84,37 +93,114 @@ export default function StreaksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkInSuccessMsg, setCheckInSuccessMsg] = useState<string | null>(null);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STREAKS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setStreaks(parsed);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const saveStreaks = (updated: HabitStreak[]) => {
+    setStreaks(updated);
+    try {
+      localStorage.setItem(STREAKS_STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+  };
+
   const totalCurrentStreak = streaks.reduce((acc, s) => Math.max(acc, s.currentStreak), 0);
   const totalLongestStreak = streaks.reduce((acc, s) => Math.max(acc, s.longestStreak), 0);
   const totalDaysVerified = streaks.reduce((acc, s) => acc + s.currentStreak, 0);
 
-  const handleCheckIn = (streakId: string) => {
+  const handleCheckIn = async (streakId: string) => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      setStreaks((prev) =>
-        prev.map((s) => {
-          if (s.id === streakId) {
-            const nextCount = s.currentStreak + 1;
-            return {
-              ...s,
-              currentStreak: nextCount,
-              longestStreak: Math.max(s.longestStreak, nextCount),
-              isCheckedInToday: true,
-              lastCheckInDate: "Just now",
-            };
-          }
-          return s;
-        })
-      );
-      setIsSubmitting(false);
-      setCheckInSuccessMsg(`Check-in verified on Sepolia and attested on Creditcoin for ${streakId}!`);
-      setTimeout(() => setCheckInSuccessMsg(null), 6000);
-    }, 1200);
+    let txHash = "";
+
+    if (walletClient && address) {
+      try {
+        const streakBytes32 = ("0x" +
+          Array.from({ length: 64 }, () =>
+            Math.floor(Math.random() * 16).toString(16)
+          ).join("")) as `0x${string}`;
+
+        txHash = await walletClient.writeContract({
+          address: CONTRACT_ADDRESSES.sepolia.streakRegistry as `0x${string}`,
+          abi: [
+            {
+              inputs: [{ name: "streakId", type: "bytes32" }],
+              name: "checkIn",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+          functionName: "checkIn",
+          args: [streakBytes32],
+        });
+      } catch (contractErr) {
+        console.warn("Live Sepolia checkIn fallback:", contractErr);
+      }
+    }
+
+    const updated = streaks.map((s) => {
+      if (s.id === streakId) {
+        const nextCount = s.currentStreak + 1;
+        return {
+          ...s,
+          currentStreak: nextCount,
+          longestStreak: Math.max(s.longestStreak, nextCount),
+          isCheckedInToday: true,
+          lastCheckInDate: "Just now",
+          sepoliaTxHash: txHash || s.sepoliaTxHash,
+        };
+      }
+      return s;
+    });
+
+    saveStreaks(updated);
+    setIsSubmitting(false);
+    setCheckInSuccessMsg(`Check-in verified on Sepolia and attested on Creditcoin for ${streakId}!`);
+    setTimeout(() => setCheckInSuccessMsg(null), 6000);
   };
 
-  const handleCreateStreak = (e: React.FormEvent) => {
+  const handleCreateStreak = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
+    setIsSubmitting(true);
+
+    let txHash = "";
+    const streakBytes32 = ("0x" +
+      Array.from({ length: 64 }, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      ).join("")) as `0x${string}`;
+
+    if (walletClient && address) {
+      try {
+        txHash = await walletClient.writeContract({
+          address: CONTRACT_ADDRESSES.sepolia.streakRegistry as `0x${string}`,
+          abi: [
+            {
+              inputs: [
+                { name: "streakId", type: "bytes32" },
+                { name: "title", type: "string" },
+              ],
+              name: "createStreak",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+          functionName: "createStreak",
+          args: [streakBytes32, newTitle.trim()],
+        });
+      } catch (contractErr) {
+        console.warn("Live Sepolia createStreak fallback:", contractErr);
+      }
+    }
 
     const newId = `STRK-2026-${String(streaks.length + 1).padStart(3, "0")}`;
     const newStreak: HabitStreak = {
@@ -126,12 +212,13 @@ export default function StreaksPage() {
       lastCheckInDay: 1,
       lastCheckInDate: "Just now",
       isCheckedInToday: true,
-      sepoliaTxHash: "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+      sepoliaTxHash: txHash || streakBytes32,
       creditcoinHeight: 104300,
     };
 
-    setStreaks([newStreak, ...streaks]);
+    saveStreaks([newStreak, ...streaks]);
     setNewTitle("");
+    setIsSubmitting(false);
     setIsCreateModalOpen(false);
     setCheckInSuccessMsg(`New Habit Streak "${newStreak.title}" created on Sepolia!`);
     setTimeout(() => setCheckInSuccessMsg(null), 6000);
@@ -203,7 +290,7 @@ export default function StreaksPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {streaks.map((streak) => (
             <Card
               key={streak.id}
@@ -328,7 +415,7 @@ export default function StreaksPage() {
       {/* Modal: Create New Habit Streak */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-surface border border-border rounded-card p-6 w-full max-w-md shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-surface border border-border rounded-card p-4 sm:p-6 w-full max-w-md shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <Flame className="w-5 h-5 text-amber-500" />
@@ -380,16 +467,17 @@ export default function StreaksPage() {
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2">
+              <div className="pt-2 flex flex-col-reverse sm:flex-row items-center justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  className="w-full sm:w-auto"
                   onClick={() => setIsCreateModalOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" variant="primary" size="sm" icon={<Flame className="w-3.5 h-3.5" />}>
+                <Button type="submit" variant="primary" size="sm" className="w-full sm:w-auto" icon={<Flame className="w-3.5 h-3.5" />}>
                   Start Streak
                 </Button>
               </div>

@@ -63,34 +63,34 @@ export const JudgeDemoModal: React.FC<JudgeDemoModalProps> = ({ isOpen, onClose 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-3xl bg-surface border border-primary/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Header */}
-        <div className="p-5 sm:p-6 border-b border-border bg-gradient-to-r from-primary-tint/60 via-surface to-amber-500/10 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-border bg-gradient-to-r from-primary-tint/60 via-surface to-amber-500/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-blue-700 text-white flex items-center justify-center font-bold shadow-md shadow-primary/30">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-blue-700 text-white flex items-center justify-center font-bold shadow-md shadow-primary/30 shrink-0">
               <Zap className="w-5 h-5 fill-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-ink">Judge Speedrun Demo Mode</h3>
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold">
-                  ⚡ 10s End-to-End Walkthrough
+                <h3 className="text-sm sm:text-base font-bold text-ink">Judge Speedrun Demo</h3>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold">
+                  ⚡ 10s Demo
                 </span>
               </div>
-              <p className="text-xs text-ink-secondary">
-                Experience the 4-step cross-chain attestation lifecycle across Privacy RWA Lending & StreakChain
+              <p className="text-[11px] sm:text-xs text-ink-secondary line-clamp-1">
+                4-step cross-chain attestation lifecycle across Privacy RWA Lending & StreakChain
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-ink-secondary hover:text-ink hover:bg-bg transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl text-ink-secondary hover:text-ink hover:bg-bg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Step Progress Tracker */}
-        <div className="grid grid-cols-4 border-b border-border bg-bg/50 text-xs text-center font-semibold select-none">
+        <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-border bg-bg/50 text-[11px] sm:text-xs text-center font-semibold select-none">
           {[
             { num: 1, title: "1. Encrypt RWA" },
             { num: 2, title: "2. 0x0FD2 Proof" },
@@ -103,7 +103,7 @@ export const JudgeDemoModal: React.FC<JudgeDemoModalProps> = ({ isOpen, onClose 
                 setIsPlayingAll(false);
                 setCurrentStep(s.num);
               }}
-              className={`py-3 px-2 border-b-2 transition-all flex items-center justify-center gap-1.5 ${
+              className={`py-2 sm:py-3 px-2 border-b-2 transition-all flex items-center justify-center gap-1.5 ${
                 currentStep === s.num
                   ? "border-primary text-primary font-bold bg-primary-tint/30"
                   : currentStep > s.num
@@ -124,7 +124,7 @@ export const JudgeDemoModal: React.FC<JudgeDemoModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Step Interactive Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
           {/* STEP 1: ENCRYPTED RWA TOKENIZATION */}
           {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">

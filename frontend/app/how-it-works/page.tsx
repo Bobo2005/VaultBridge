@@ -180,7 +180,7 @@ export default function HowItWorksPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {streakSteps.map((st) => (
             <Card key={st.num} className="space-y-4 relative overflow-hidden group p-6 border-amber-200/60 bg-surface">
               <div className="flex items-center justify-between">

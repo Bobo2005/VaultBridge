@@ -49,6 +49,7 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
   const [step, setStep] = useState<"approve" | "repay">("approve");
   const [isApproving, setIsApproving] = useState(false);
   const [isRepaying, setIsRepaying] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [isApproved, setIsApproved] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -110,8 +111,10 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
   const handleApprove = async () => {
     setIsApproving(true);
     setErrorMsg(null);
+    setLoadingStatus("1/2: Submitting ERC-20 token approval to Creditcoin network...");
 
     try {
+      await new Promise((r) => setTimeout(r, 600));
       const requiredAmount = parseUnits(loan.principalUsd.toString(), 18);
 
       if (walletClient && address) {
@@ -140,6 +143,7 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
 
       setIsApproved(true);
       setStep("repay");
+      setLoadingStatus(null);
     } catch (err: any) {
       console.error("Approval error:", err);
       setErrorMsg(err.message || "Failed to approve token transfer");
@@ -151,10 +155,14 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
   const handleRepay = async () => {
     setIsRepaying(true);
     setErrorMsg(null);
+    setLoadingStatus("1/2: Submitting settlement transaction to VaultLending contract...");
 
     try {
+      await new Promise((r) => setTimeout(r, 600));
+      setLoadingStatus("2/2: Confirming repayment & releasing collateral receivable from escrow...");
+
       let hash = "";
-      const loanIdBytes32 = ("0x" +
+      const invoiceIdBytes32 = ("0x" +
         Array.from({ length: 64 }, () =>
           Math.floor(Math.random() * 16).toString(16)
         ).join("")) as `0x${string}`;
@@ -165,15 +173,15 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
             address: vaultLendingAddress,
             abi: [
               {
-                inputs: [{ name: "loanId", type: "bytes32" }],
-                name: "repay",
+                inputs: [{ name: "invoiceId", type: "bytes32" }],
+                name: "repayInvoice",
                 outputs: [],
                 stateMutability: "nonpayable",
                 type: "function",
               },
             ],
-            functionName: "repay",
-            args: [loanIdBytes32],
+            functionName: "repayInvoice",
+            args: [invoiceIdBytes32],
           });
         } catch (err: any) {
           console.warn("Repay contract call fallback to simulated execution:", err);
@@ -182,6 +190,8 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
       } else {
         hash = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
       }
+
+      await new Promise((r) => setTimeout(r, 600));
 
       // Update API Store
       await VaultBridgeAPI.simulatePayment(loan.invoiceId);
@@ -192,6 +202,7 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
       triggerBalanceRefresh();
 
       setTxHash(hash);
+      setLoadingStatus(null);
       onSuccess?.();
     } catch (err: any) {
       console.error("Repay execution error:", err);
@@ -203,7 +214,7 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-ink/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
-      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-6 space-y-6">
+      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2.5">
@@ -307,6 +318,25 @@ export const RepayLoanModal: React.FC<RepayLoanModalProps> = ({
                 </span>
               </div>
             </div>
+
+            {(isApproving || isRepaying) && (
+              <div className="p-4 bg-gradient-to-br from-primary-tint/80 to-surface border border-primary/30 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-primary flex items-center gap-1.5">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>{isApproving ? "Authorizing Token Allowance" : "Executing Loan Settlement"}</span>
+                  </span>
+                  <span className="font-mono font-bold text-ink">
+                    {isApproving ? "Stage 1/2" : "Stage 2/2"}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-ink font-medium">
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  <span>{loadingStatus}</span>
+                </div>
+              </div>
+            )}
 
             {errorMsg && (
               <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">

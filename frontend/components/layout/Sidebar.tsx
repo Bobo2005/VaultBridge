@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ExternalLink,
   Lock,
+  X,
   Layers
 } from "lucide-react";
 
@@ -77,15 +78,35 @@ const navSections: NavSection[] = [
   },
 ];
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isMobile?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, onClose }) => {
   const pathname = usePathname();
 
+  const handleLinkClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="w-[240px] shrink-0 min-h-screen bg-surface border-r border-border flex flex-col justify-between sticky top-0 h-screen z-30 select-none">
+    <aside
+      className={`
+        bg-surface border-r border-border flex flex-col justify-between select-none
+        ${
+          isMobile
+            ? "w-full max-w-[280px] h-full z-50 overflow-y-auto"
+            : "w-[240px] shrink-0 min-h-screen sticky top-0 h-screen z-30 hidden lg:flex"
+        }
+      `}
+    >
       {/* Top Header: Logo */}
-      <div className="overflow-y-auto">
-        <div className="h-20 flex items-center px-6 border-b border-border">
-          <Link href="/" className="flex items-center gap-3 group">
+      <div className="overflow-y-auto flex-1">
+        <div className="h-20 flex items-center justify-between px-6 border-b border-border">
+          <Link href="/" onClick={handleLinkClick} className="flex items-center gap-3 group">
             {/* Custom cryptographic bridge mark */}
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm shadow-primary/30 group-hover:bg-primary-dark transition-colors shrink-0">
               <svg
@@ -124,6 +145,15 @@ export const Sidebar: React.FC = () => {
               </p>
             </div>
           </Link>
+          {isMobile && onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-ink-secondary hover:text-ink hover:bg-bg transition-colors"
+              aria-label="Close Navigation"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Grouped Navigation Sections */}
@@ -146,6 +176,7 @@ export const Sidebar: React.FC = () => {
                   <Link
                     key={item.name}
                     href={item.href}
+                    onClick={handleLinkClick}
                     className={`
                       relative flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group
                       ${

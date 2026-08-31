@@ -116,7 +116,7 @@ export default function HomePage() {
         </div>
 
         {/* 4 Live Metric Pills */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 max-w-4xl mx-auto text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-8 max-w-4xl mx-auto text-left">
           <div className="p-4 bg-surface border border-border rounded-2xl shadow-xs">
             <span className="text-[11px] font-semibold text-ink-secondary uppercase tracking-wider block">
               Verified Receivables
@@ -156,13 +156,13 @@ export default function HomePage() {
         <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-ink-secondary">
           Integrated with Institutional Cross-Border Financial Infrastructure
         </span>
-        <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-70 grayscale hover:grayscale-0 transition-all duration-200">
-          <span className="font-mono font-bold text-sm text-ink">Cross-Border Escrow</span>
-          <span className="font-mono font-bold text-sm text-ink">Creditcoin Network</span>
-          <span className="font-mono font-bold text-sm text-ink">Instant Verification Engine</span>
-          <span className="font-mono font-bold text-sm text-ink">Bank-Grade Encryption</span>
-          <span className="font-mono font-bold text-sm text-ink">Synchronous Settlement</span>
-          <span className="font-mono font-bold text-sm text-ink">Enterprise Cloud (SOC-2 Ready)</span>
+        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-14 opacity-70 grayscale hover:grayscale-0 transition-all duration-200">
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Cross-Border Escrow</span>
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Creditcoin Network</span>
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Instant Verification Engine</span>
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Bank-Grade Encryption</span>
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Synchronous Settlement</span>
+          <span className="font-mono font-bold text-xs sm:text-sm text-ink">Enterprise Cloud (SOC-2 Ready)</span>
         </div>
       </section>
 
@@ -172,7 +172,7 @@ export default function HomePage() {
           <span className="text-xs font-bold uppercase tracking-wider text-primary">
             Unified Financial Platform
           </span>
-          <h2 className="text-3xl font-black text-ink tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">
             One Secure Engine, Two Transformative Solutions
           </h2>
           <p className="text-xs sm:text-sm text-ink-secondary">
@@ -180,9 +180,9 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {/* Product 1: Privacy RWA Lending */}
-          <Card className="p-8 space-y-6 border-primary/30 relative overflow-hidden bg-gradient-to-br from-surface to-primary-tint/20">
+          <Card className="p-6 sm:p-8 space-y-6 border-primary/30 relative overflow-hidden bg-gradient-to-br from-surface to-primary-tint/20">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-bold">
                 <Lock className="w-6 h-6" />
@@ -199,7 +199,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
               <div className="p-3 bg-bg rounded-xl border border-border/60">
                 <span className="text-ink-secondary font-medium">Data Protection</span>
                 <p className="font-bold text-ink mt-0.5">AES-256 Client-Side Encryption</p>
@@ -217,7 +217,7 @@ export default function HomePage() {
           </Card>
 
           {/* Product 2: StreakChain */}
-          <Card className="p-8 space-y-6 border-amber-300/60 relative overflow-hidden bg-gradient-to-br from-surface to-amber-500/10">
+          <Card className="p-6 sm:p-8 space-y-6 border-amber-300/60 relative overflow-hidden bg-gradient-to-br from-surface to-amber-500/10">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold">
                 <Flame className="w-6 h-6 fill-white" />
@@ -234,7 +234,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
               <div className="p-3 bg-bg rounded-xl border border-border/60">
                 <span className="text-ink-secondary font-medium">Milestone Credentials</span>
                 <p className="font-bold text-amber-600 mt-0.5">Digital Achievement Badges</p>
@@ -327,16 +327,16 @@ export default function HomePage() {
       </section>
 
       {/* HOW IT WORKS 4-STEP VISUAL JOURNEY */}
-      <section className="space-y-8 bg-surface p-8 sm:p-10 border border-border rounded-3xl shadow-sm">
+      <section className="space-y-8 bg-surface p-6 sm:p-10 border border-border rounded-3xl shadow-sm">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-xs font-bold uppercase tracking-wider text-primary">End-to-End Lifecycle</span>
-          <h2 className="text-3xl font-black text-ink tracking-tight">The 4-Step Working Capital Flow</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-ink tracking-tight">The 4-Step Working Capital Flow</h2>
           <p className="text-xs sm:text-sm text-ink-secondary">
             Streamlined cross-border verification powering both commercial receivables financing and performance audits.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-4 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 relative">
           {/* Step 1 */}
           <div className="space-y-3 relative">
             <div className="w-10 h-10 rounded-xl bg-primary text-white font-bold flex items-center justify-center text-sm shadow-sm shadow-primary/30">

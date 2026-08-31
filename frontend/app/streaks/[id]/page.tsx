@@ -221,7 +221,7 @@ export default function StreakDetailPage() {
         </div>
 
         {/* 4 Metadata Badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-border text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t border-border text-xs">
           <div className="p-3 bg-bg rounded-xl">
             <span className="text-ink-secondary">Source Chain</span>
             <p className="font-bold text-ink mt-0.5">Ethereum Sepolia (11155111)</p>
@@ -334,7 +334,7 @@ export default function StreakDetailPage() {
       {/* Public Share Proof Modal */}
       {isShareModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-surface border border-border rounded-card p-6 w-full max-w-md shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+          <div className="bg-surface border border-border rounded-card p-4 sm:p-6 w-full max-w-md shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-primary" />

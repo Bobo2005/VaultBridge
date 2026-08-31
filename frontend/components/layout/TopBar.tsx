@@ -72,22 +72,22 @@ export const TopBar: React.FC<TopBarProps> = ({
   return (
     <>
       <header
-        className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border mb-8 ${className}`}
+        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-border mb-6 sm:mb-8 ${className}`}
       >
         {/* Title + Subtitle */}
-        <div>
-          <h1 className="text-[32px] font-bold leading-[40px] text-ink tracking-tight">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-bold leading-tight sm:leading-[40px] text-ink tracking-tight break-words">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-[14px] font-normal leading-[20px] text-ink-secondary mt-1">
+            <p className="text-xs sm:text-sm font-normal text-ink-secondary mt-1 max-w-3xl leading-relaxed">
               {subtitle}
             </p>
           )}
         </div>
 
         {/* Right Controls: Faucet Claim + Judge Demo + Filter + Wallet Tools + Action / Wallet Connect */}
-        <div className="flex items-center flex-wrap gap-2.5">
+        <div className="flex items-center flex-wrap gap-2 sm:gap-2.5 shrink-0">
           {/* 1-Click Testnet Token Claim Button */}
           <ClaimFaucetButton />
 
@@ -166,19 +166,19 @@ export const TopBar: React.FC<TopBarProps> = ({
           {/* Network Switcher Button */}
           <button
             onClick={() => setIsNetworkModalOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-bg border border-border rounded-btn text-xs font-medium text-ink-secondary shadow-xs transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-surface hover:bg-bg border border-border rounded-btn text-xs font-medium text-ink-secondary shadow-xs transition-colors cursor-pointer"
             title="Click to Switch Network"
           >
             <span className="w-2 h-2 rounded-full bg-success"></span>
-            <span className="font-semibold text-ink">
-              {chain?.name || "Creditcoin Testnet"}
+            <span className="font-semibold text-ink text-[11px] sm:text-xs">
+              {chain?.name || "Creditcoin"}
             </span>
             <ArrowRightLeft className="w-3 h-3 text-ink-secondary ml-0.5" />
           </button>
 
           {/* Wallet Connect Button with Multi-Provider Modal */}
           {isConnected ? (
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 bg-primary-tint border border-primary/20 rounded-btn text-xs font-semibold text-primary shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-2 bg-primary-tint border border-primary/20 rounded-btn text-xs font-semibold text-primary shadow-xs">
               <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
               <span className="font-mono">{formattedAddress}</span>
               <button

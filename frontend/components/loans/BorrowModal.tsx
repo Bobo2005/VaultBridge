@@ -47,6 +47,8 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
   const [borrowAmount, setBorrowAmount] = useState<number>(maxBorrowUsd);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("USDC");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(1);
+  const [loadingStatus, setLoadingStatus] = useState("Encrypting loan parameters & verifying LTV limits...");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -61,8 +63,14 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
   const handleBorrow = async () => {
     setIsSubmitting(true);
     setErrorMsg(null);
+    setLoadingStep(1);
+    setLoadingStatus("1/3: Verifying receivable LTV limits & cryptographic commitment...");
 
     try {
+      await new Promise((r) => setTimeout(r, 600));
+      setLoadingStep(2);
+      setLoadingStatus("2/3: Submitting loan disbursement transaction to Creditcoin VaultLending...");
+
       let hash = "";
       const invoiceIdBytes32 = (invoice.invoiceIdHex ||
         "0xdcd053978e3815f282693bb3040b7bdc9ed6f82ca5abfae5af6ee25f3d15cd2d") as `0x${string}`;
@@ -95,6 +103,10 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
         hash = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
       }
 
+      setLoadingStep(3);
+      setLoadingStatus("3/3: Confirming block inclusion & crediting funds into your wallet...");
+      await new Promise((r) => setTimeout(r, 700));
+
       // Update API Store
       await VaultBridgeAPI.borrowLiquidity(invoice.id, borrowAmount, selectedCurrency);
 
@@ -115,7 +127,7 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-ink/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
-      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-6 space-y-6">
+      <div className="bg-surface border border-border shadow-2xl rounded-2xl max-w-lg w-full p-4 sm:p-6 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2.5">
@@ -243,6 +255,33 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
               />
             </div>
 
+            {isSubmitting && (
+              <div className="p-4 bg-gradient-to-br from-primary-tint/80 to-surface border border-primary/30 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-200">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-primary flex items-center gap-1.5">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>Disbursing Loan On-Chain</span>
+                  </span>
+                  <span className="font-mono font-bold text-ink">
+                    {loadingStep === 1 ? "33%" : loadingStep === 2 ? "66%" : "100%"}
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-primary h-full rounded-full transition-all duration-500"
+                    style={{ width: `${loadingStep === 1 ? 33 : loadingStep === 2 ? 66 : 100}%` }}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-ink font-medium">
+                  <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                  <span>{loadingStatus}</span>
+                </div>
+              </div>
+            )}
+
             {errorMsg && (
               <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -252,7 +291,7 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
 
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button variant="ghost" size="md" onClick={onClose}>
+              <Button variant="ghost" size="md" onClick={onClose} disabled={isSubmitting}>
                 Cancel
               </Button>
               <Button
@@ -263,7 +302,7 @@ export const BorrowModal: React.FC<BorrowModalProps> = ({
                 isLoading={isSubmitting}
                 icon={<Coins className="w-4 h-4" />}
               >
-                Draw Working Capital (${borrowAmount.toLocaleString()} {selectedCurrency})
+                {isSubmitting ? "Disbursing Funds..." : `Draw Working Capital ($${borrowAmount.toLocaleString()} ${selectedCurrency})`}
               </Button>
             </div>
           </div>

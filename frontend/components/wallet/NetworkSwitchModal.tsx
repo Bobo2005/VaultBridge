@@ -60,7 +60,7 @@ export const NetworkSwitchModal: React.FC<NetworkSwitchModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-ink/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
-      <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-6 space-y-5">
+      <div className="bg-surface border border-border rounded-card shadow-2xl max-w-md w-full p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -112,13 +112,14 @@ export const NetworkSwitchModal: React.FC<NetworkSwitchModalProps> = ({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <Button variant="secondary" size="md" onClick={onClose}>
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 sm:gap-3 pt-2">
+          <Button variant="secondary" size="md" className="w-full sm:w-auto" onClick={onClose}>
             Cancel
           </Button>
           <Button
             variant="primary"
             size="md"
+            className="w-full sm:w-auto"
             icon={<ArrowRightLeft className="w-4 h-4" />}
             onClick={handleConfirmSwitch}
             isLoading={isSwitching}
