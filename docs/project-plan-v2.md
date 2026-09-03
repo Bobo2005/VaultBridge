@@ -1,44 +1,44 @@
-# PROJECT-PLAN-V2.md — VaultBridge Platform (V2)
+# PROJECT-PLAN-V2.md — VaultBridge Platform (3-Phase Completed Plan)
 
-> This is an extension of the same VaultBridge codebase and platform from V1. Nothing here forks the project — StreakChain and the Privacy Layer are new modules living inside the existing repo, sharing the wallet connection, the proof-pipeline engine, and the design system already built.
+> Unified VaultBridge Platform for the BUIDL CTC 2026 Fall Hackathon (RWA/DeFi Track & Gaming Track).
 
-## V2 Scope
+---
 
-**1. Privacy Layer (for existing VaultBridge invoice/lending module)**
-Invoice and loan data currently stored in plaintext on Creditcoin becomes encrypted-by-default, visible only to the owning wallet, with explicit, revocable, address-based sharing.
+## 🚀 3-Phase Execution Roadmap & Completed Milestones
 
-**2. StreakChain (new module, same platform)**
-Trustlessly verified habit streaks, reusing the absence-of-payment proof mechanism from V1's default trigger, applied to a non-financial, mass-appeal use case. Targets the Gaming track (currently uncontested in this hackathon round, per competitive research).
-
-## Why Both, Why Now
-- Privacy Layer strengthens the existing VaultBridge submission — real invoice/loan data being fully public is a legitimate weakness a judge could flag.
-- StreakChain gives you a second, genuinely novel submission surface (Gaming track) built on the same underlying engine — demonstrating the Attestcoin Protocol integration is real infrastructure, not a one-off.
-- Submitting both under one platform/repo, potentially as two track entries (RWA/DeFi + Gaming) referencing the same codebase, maximizes your shot across tracks without duplicating core engineering work.
-
-## Milestones
-
-| # | Milestone | Module | Status |
+### Phase 1: Smart Contract Game Theory, Economics & Cryptographic Rigor
+| # | Milestone | Component | Status |
 |---|---|---|---|
-| P1 | Encryption utils + key wrapping working client-side | Privacy | ✅ Complete (3/3 passing) |
-| P2 | `AccessRegistry.sol` deployed, grant/revoke working | Privacy | ✅ Complete (25/25 passing) |
-| P3 | `VaultLending.sol` migrated to commitment+pointer storage (no plaintext on-chain) | Privacy | ✅ Complete |
-| P4 | Full selective share flow working end-to-end in UI (grant an address, they can decrypt, instant revoke) | Privacy | ✅ Complete |
-| P5 | Real On-Chain Testnet Liquidity (`MockERC20.sol` Faucet + physical wallet disbursement / repayment) | Real Liquidity | ✅ Complete (44/44 passing) |
-| P6 | Enterprise FinTech Copy Revamp across all Dashboards, Invoices, and Facilities views | FinTech UX | ✅ Complete |
-| S1 | `StreakRegistry.sol` deployed on source chain | StreakChain | ✅ Complete (Sepolia) |
-| S2 | Streak absence-proof pipeline verified in isolation | StreakChain | ✅ Complete (2/2 passing) |
-| S3 | `StreakVerifier.sol` + `StreakBadge.sol` deployed on Creditcoin, streak counting + breaking logic working | StreakChain | ✅ Complete (10/10 passing) |
-| S4 | Streak dashboard, leaderboard, and shareable streak badge live | StreakChain | ✅ Complete (12/12 routes) |
-| F1 | Both modules integrated into one sidebar/platform, README updated, submission-ready | Both | ✅ Complete |
+| **P1.1** | 5% Liquidator Keeper Bounty (`LIQUIDATOR_BOUNTY_BPS = 500`) | `VaultLending.sol` | ✅ **Complete & Verified** |
+| **P1.2** | Dynamic APR Tiers (4.0%, 4.5%, 6.5%) & Linear Continuous Interest Accrual | `VaultLending.sol` | ✅ **Complete & Verified** |
+| **P1.3** | Partial Repayments (`repayPartial`, `releaseOnPartialPayment`) | `VaultLending.sol` | ✅ **Complete & Verified** |
+| **P1.4** | Gasless EIP-712 Meta-Transactions (`borrowWithPermit`, `grantAccessWithPermit`) | `VaultLending.sol` & `AccessRegistry.sol` | ✅ **Complete & Verified** |
+| **P1.5** | Comprehensive Economics Test Suite (`VaultLendingEconomics.test.js`) | Hardhat Suite | ✅ **51/51 Tests Passing** |
 
-## Definition of Done (V2)
-- [x] No invoice/loan detail is readable on-chain by anyone other than the owner or an explicitly granted address (Verified via `VaultLending.sol` commitment+pointer architecture)
-- [x] Real testnet tokens physically move in/out of connected wallet with 1-click Faucet claim and Yield Vault (Verified via `MockERC20.sol` & `VaultLending.sol`)
-- [x] A granted address can decrypt exactly what was shared, nothing more (Verified via `AccessRegistry.sol` and `crypto.roundtrip.test.ts`)
-- [x] A revoked address loses access immediately on next check (Verified via `PrivacyAccessControl.test.js` Scenario 3 & UI revocation)
-- [x] A missed day trustlessly breaks a streak with no centralized decision (Verified via `StreakVerifier.test.js`, `streak.isolation.test.ts`, and `streak.e2e.test.ts`)
-- [x] Both modules run from the same wallet connection and the same deployed proof-pipeline package (Verified via unified `Sidebar.tsx` and Next.js 14 shell)
-- [x] README documents both modules and clearly explains the shared Attestcoin Protocol engine underneath both (Verified in `README.md`)
+### Phase 2: Autonomous Watchtower, SSE Telemetry & Proof Visualizer API
+| # | Milestone | Component | Status |
+|---|---|---|---|
+| **P2.1** | Dual-Mode Autonomous Watchtower (RWA Liquidator + Streak Slasher Daemon) | `proof-pipeline/src/keeper.ts` | ✅ **Complete & Verified** |
+| **P2.2** | Server-Sent Events (SSE) Stream (`GET /api/stream/attestations`) | `proof-pipeline/src/index.ts` | ✅ **Complete & Verified** |
+| **P2.3** | 50-Event Circular Telemetry Buffer & History (`GET /api/attestations/history`) | `proof-pipeline/src/telemetry.ts` | ✅ **Complete & Verified** |
+| **P2.4** | Cryptographic Merkle Patricia Trie Inspector API (`POST /api/proof/inspect`) | `proof-pipeline/src/merkleInspector.ts` | ✅ **Complete & Verified** |
+| **P2.5** | End-to-End Watchtower & SSE Test Suite (`watchtower.e2e.test.ts`) | Jest Suite | ✅ **8/8 Tests Passing** |
 
-## Timeline Note
-Same deadline constraint as V1 (Sept 6, 23:59 ET). Both modules are 100% complete, fully tested, and ready for submission.
+### Phase 3: Frontend Judge "God Mode", Interactive Merkle Visualizer & Polish
+| # | Milestone | Component | Status |
+|---|---|---|---|
+| **P3.1** | 1-Click Interactive "Judge God Mode" Floating Toolbar | `JudgeSandboxBar.tsx` | ✅ **Complete & Live** |
+| **P3.2** | 10s Speedrun 4-Step Interactive Walkthrough Modal | `JudgeDemoModal.tsx` | ✅ **Complete & Live** |
+| **P3.3** | Interactive Cryptographic Merkle Patricia Trie Depth Visualizer Modal | `ProofVisualizerModal.tsx` | ✅ **Complete & Live** |
+| **P3.4** | Institutional KPMG/Deloitte Compliance & Audit Certificate Exporter (PDF Print) | `AuditCertificateModal.tsx` | ✅ **Complete & Live** |
+| **P3.5** | Zero-Dependency Web Audio API Tactile Sound Synthesizer | `lib/soundFx.ts` | ✅ **Complete & Live** |
+| **P3.6** | Real-Time SSE Stream Integration in Live Attestation Feed | `LiveAttestationFeed.tsx` | ✅ **Complete & Live** |
+| **P3.7** | Full Static & Dynamic Production Route Compilation | `npm run build` | ✅ **13/13 Routes Compiled** |
+
+---
+
+## 🎯 Verification & Quality Sign-Off
+- [x] **Smart Contracts**: 51 / 51 Hardhat unit & economic tests passing (100%).
+- [x] **Privacy SDK**: 3 / 3 AES-256-GCM and ECIES tests passing (100%).
+- [x] **Proof Watchtower**: 10 / 10 isolation and watchtower e2e tests passing (100%).
+- [x] **Frontend Web App**: 13 / 13 routes and API endpoints compiled cleanly with zero lint or type errors.

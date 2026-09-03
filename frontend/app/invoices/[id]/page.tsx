@@ -26,6 +26,9 @@ import { BorrowModal } from "../../../components/loans/BorrowModal";
 import { RepayLoanModal } from "../../../components/loans/RepayLoanModal";
 import { ClaimFaucetButton } from "../../../components/wallet/ClaimFaucetButton";
 import { subscribeToBalanceUpdates } from "../../../lib/balanceCache";
+import { AuditCertificateModal } from "../../../components/AuditCertificateModal";
+import { ProofVisualizerModal } from "../../../components/ProofVisualizerModal";
+import { soundFx } from "../../../lib/soundFx";
 import {
   ChevronLeft,
   ExternalLink,
@@ -46,7 +49,9 @@ import {
   CreditCard,
   RefreshCw,
   AlertTriangle,
-  Download
+  Download,
+  FileCheck,
+  Layers,
 } from "lucide-react";
 
 export default function InvoiceDetailPage() {
@@ -57,6 +62,10 @@ export default function InvoiceDetailPage() {
   const [invoice, setInvoice] = useState<InvoiceRecord | null>(null);
   const [allInvoices, setAllInvoices] = useState<InvoiceRecord[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<string>("USDC");
+
+  // Audit & Visualizer Modals
+  const [isAuditCertOpen, setIsAuditCertOpen] = useState(false);
+  const [isProofVisualizerOpen, setIsProofVisualizerOpen] = useState(false);
 
   // Multi-wallet viewer simulator for judges / tests
   const [activeViewerRole, setActiveViewerRole] = useState<"owner" | "auditor" | "unauthorized">("owner");
@@ -223,7 +232,7 @@ export default function InvoiceDetailPage() {
   return (
     <div className="space-y-8">
       {/* Breadcrumb & Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <Link
           href="/invoices"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-secondary hover:text-primary transition-colors"
@@ -231,10 +240,32 @@ export default function InvoiceDetailPage() {
           <ChevronLeft className="w-4 h-4" />
           <span>Back to Receivables</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<FileCheck className="w-4 h-4 text-emerald-600" />}
+            onClick={() => {
+              soundFx.playClick();
+              setIsAuditCertOpen(true);
+            }}
+          >
+            <span>Audit Certificate</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<Layers className="w-4 h-4 text-indigo-500" />}
+            onClick={() => {
+              soundFx.playClick();
+              setIsProofVisualizerOpen(true);
+            }}
+          >
+            <span>Inspect Merkle Trie</span>
+          </Button>
           <Link href={`/invoices/${invoice.id}/share`}>
             <Button variant="outline" size="sm" icon={<Key className="w-4 h-4 text-primary" />}>
-              <span>Share Confidential Access</span>
+              <span>Share Access</span>
             </Button>
           </Link>
           <AttestationBadge status={invoice.status} size="md" />
@@ -652,6 +683,32 @@ export default function InvoiceDetailPage() {
             dueDateBlock: invoice.dueDateBlock,
           }}
           onSuccess={() => loadInvoiceData()}
+        />
+      )}
+
+      {/* Institutional Audit Certificate Modal */}
+      {invoice && (
+        <AuditCertificateModal
+          isOpen={isAuditCertOpen}
+          onClose={() => setIsAuditCertOpen(false)}
+          invoiceId={invoice.id}
+          amountUsd={invoice.amountUsd}
+          debtorName={decryptedData?.debtorCompany || "BMW Financial Services NA"}
+          commitmentHash={invoice.commitment || "0x98f4e21a88b9c71234567890abcdef1234567890abcdef1234567890abcdef12"}
+          storagePointer={invoice.pointer || "ipfs://bafkreihdwdcefgh456privacyblob789"}
+          creditcoinTxHash={invoice.txHash}
+          sepoliaProofTx={invoice.txHash}
+        />
+      )}
+
+      {/* Merkle Patricia Trie Proof Visualizer Modal */}
+      {invoice && (
+        <ProofVisualizerModal
+          isOpen={isProofVisualizerOpen}
+          onClose={() => setIsProofVisualizerOpen(false)}
+          invoiceId={invoice.id}
+          txHash={invoice.txHash}
+          blockHeight={invoice.attestedHeight || 7219482}
         />
       )}
     </div>

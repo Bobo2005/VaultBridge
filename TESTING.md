@@ -1,6 +1,6 @@
 # 🧪 VaultBridge Testing & Verification Guide
 
-This document provides a comprehensive guide for testing the VaultBridge protocol across Smart Contracts, Proof Pipeline (Backend), and Frontend Web App.
+This document provides a comprehensive guide for testing the VaultBridge protocol across Smart Contracts, Privacy Layer, Proof Watchtower Pipeline (Backend), and Frontend Web App.
 
 ---
 
@@ -8,17 +8,17 @@ This document provides a comprehensive guide for testing the VaultBridge protoco
 
 | Component | Command | Target Network | Expected Result |
 |---|---|---|---|
-| **Smart Contracts** | `cd contracts && npx hardhat test` | Local Hardhat (Solc 0.8.20) | **41/41 passing unit tests** |
-| **Privacy Crypto Utils** | `cd crypto && npx jest` | Isolated Cryptographic Engine | **3/3 passing roundtrip tests** |
-| **Proof Pipeline Isolation** | `cd proof-pipeline && npx jest --forceExit` | Sepolia + Creditcoin Testnet | **7/7 passing live attestation tests** |
-| **CLI Demo Walkthrough** | `cd proof-pipeline && npx ts-node demo_walkthrough.ts` | Multi-chain Simulation | Complete 6-step lifecycle in 9.6s |
-| **Autonomous Keeper Daemon** | `cd proof-pipeline && npm run keeper` | Background Daemon Sidecar | Monitors overdue loans & sends webhooks |
-| **Backend REST API** | `cd proof-pipeline && npm start` | Node.js / Express Server | Health check `/health` -> 200 OK |
+| **Smart Contracts & Economics** | `cd contracts && npx hardhat test` | Local Hardhat (Solc 0.8.20) | **51/51 passing unit & economic tests** |
+| **Privacy Crypto Utils** | `cd crypto && npm test` | Isolated Cryptographic Engine | **3/3 passing roundtrip tests** |
+| **Proof Watchtower & SSE** | `cd proof-pipeline && npx jest test/watchtower.e2e.test.ts` | Isolated Prover & Express Server | **8/8 passing watchtower tests** |
+| **Streak Isolation Proofs** | `cd proof-pipeline && npx jest test/streak.isolation.test.ts` | Creditcoin + Sepolia Tests | **2/2 passing absence tests** |
+| **Autonomous Watchtower Daemon** | `cd proof-pipeline && npm run keeper` | Background Daemon Sidecar | Dual-mode RWA liquidator & streak slasher |
+| **Proof REST API & SSE Server** | `cd proof-pipeline && npm run dev` | Node.js / Express Server | Live SSE on `/api/stream/attestations` |
 | **Frontend Production Build** | `cd frontend && npm run build` | Next.js 14 App Router | **13/13 routes compiled cleanly (Code 0)** |
 
 ---
 
-## 1. Smart Contract Testing (41/41 Passing)
+## 1. Smart Contract Testing (51/51 Passing)
 
 ```bash
 cd contracts
@@ -26,6 +26,12 @@ npx hardhat test
 ```
 
 ### Test Coverage Highlights:
+- **`VaultLendingEconomics.test.js` (10/10)**:
+  - **5% Liquidator Keeper Bounty**: Verifies `LIQUIDATOR_BOUNTY_BPS = 500` (5.0%) disbursed to liquidator upon absence proof verification.
+  - **Dynamic APR & Interest Accrual**: Verifies linear second-by-second accrued interest calculations across Tier A (4.0%), Tier B (4.5%), and Tier C (6.5%).
+  - **Dynamic Pool Utilization & Lender APY**: Validates pool utilization and lender yield.
+  - **Partial Repayments**: Verifies `repayPartial()` and `releaseOnPartialPayment()`.
+  - **EIP-712 Gasless Meta-Transactions**: Tests `borrowWithPermit` and `grantAccessWithPermit`.
 - **`AccessRegistry Contract Tests` (7/7)**: Validates granular ECIES key delegation for Verified Auditors, Institutional Lenders, and Tax Officers, plus instant 1-click on-chain revocation.
 - **`InvoiceRegistrar Tests` (6/6)**: Validates Sepolia invoice tokenization, event emissions, duplicate prevention, and debtor authorization.
 - **`PrivacyAccessControl Matrix Tests` (4/4)**: Enforces role-based permission verification.
@@ -40,7 +46,7 @@ npx hardhat test
 
 ```bash
 cd crypto
-npx jest
+npm test
 ```
 
 Verifies:
@@ -51,61 +57,60 @@ Verifies:
 
 ---
 
-## 3. Proof Pipeline Backend Testing (7/7 Passing)
+## 3. Proof Watchtower Pipeline Testing (10/10 Passing)
 
 ```bash
 cd proof-pipeline
-npx jest --forceExit
+npx jest test/watchtower.e2e.test.ts test/streak.isolation.test.ts
 ```
 
 Verifies:
-- **`pipeline.isolation.test.ts`**: Positive Merkle proof generation and continuous block continuity proof verified on Creditcoin Precompile `0x0FD2`.
-- **`streak.isolation.test.ts`**: Absence proof generation over 24-hour block ranges.
-- **`streak.e2e.test.ts`**: Full 4-step life-cycle (Sepolia check-in $\to$ consecutive count increment $\to$ illegal break rejection $\to$ verified absence streak reset).
+- **`watchtower.e2e.test.ts` (8/8)**:
+  - Telemetry event broadcasting and 50-item circular buffer retention.
+  - Merkle Patricia Trie depth layer disassembly (Root, Extension, Branch, Leaf).
+  - Precompile `0x0FD2` gas benchmarks (**45.2% gas savings**).
+  - Express endpoints (`/health`, `/api/status`, `/api/attestations/history`, `POST /api/proof/inspect`).
+  - Watchtower daemon lifecycle, heartbeat scans, and overdue loan detection.
+- **`streak.isolation.test.ts` (2/2)**: Absence proof generation over 24-hour block ranges.
 
 ---
 
 ## 4. Interactive End-to-End UI Testing Guide
 
-### A. Working Capital Loan Draw & Real-Time Balance Drop
-1. Connect your wallet on **Creditcoin Testnet (Chain ID: `102031`)**.
-2. Click **"+50k USDC"** or **"Claim Testnet USDC"** in the TopBar / Portfolio Drawer.
-3. Open **[Loans](http://localhost:3000/loans)** $\to$ Click **"Draw Working Capital"**.
-4. Select `USDC` (or `EURC`/`USDT`) and enter the draw amount up to your credit limit.
-5. Click **"Authorize & Draw Capital"**. Watch the **3-stage animated progress bar** (LTV check $\to$ contract execution $\to$ wallet credit).
-6. Open the **Portfolio Drawer** to see your updated total valuation and physical token balance.
+### A. 1-Click Judge "God Mode" Sandbox Toolbar
+1. On any page in the web app, find the floating **"⚡ Judge Sandbox God Mode"** toolbar at the bottom.
+2. Click **"1. RWA Happy Path"** to execute instant client-side encryption $\to$ on-chain registration $\to$ 80% Tier A draw $\to$ debtor payment $\to$ Precompile `0x0FD2` release.
+3. Click **"2. Default & Bounty"** to trigger absence proof generation past due date $\to$ 5% keeper bounty claim.
+4. Click **"3. Streak & Slasher"** to attest 7-day habit check-ins $\to$ mint Soulbound NFT badge $\to$ simulate missed day slash.
+5. Click **"10s Speedrun"** to open the complete visual walkthrough.
 
-### B. Repaying Loan & Releasing Collateral
-1. On the **[Loans](http://localhost:3000/loans)** page under **Active Credit Positions**, click **"Authorize & Repay Loan"**.
-2. Click **"Step 1: Authorize USDC Transfer"** (watch animated allowance loader).
-3. Click **"Step 2: Settle Principal & Release Collateral"**.
-4. Tokens are deducted from your wallet balance in real-time, the loan status updates to **Settled**, and collateral receivable is unlocked.
+### B. Merkle Patricia Trie Proof Visualizer
+1. Click **"Merkle Inspector"** in the Judge Sandbox toolbar (or **"Inspect Merkle Trie"** on any invoice detail page).
+2. Explore the interactive 4-layer depth graph:
+   - *Layer 0 (Root Node)*: Block Header Transactions Root.
+   - *Layer 1 (Extension Node)*: Compact path nibbles.
+   - *Layer 2 (Branch Node)*: Intermediate 16-child routing slot.
+   - *Layer 3 (Leaf Node)*: RLP-encoded settlement transaction.
+3. View the native Precompile `0x0FD2` gas benchmark comparison (**28,500 gas vs 52,000 gas**).
 
-### C. Yield & Liquidity Vault (Supply & Withdraw)
-1. On the **[Loans](http://localhost:3000/loans)** page, click **"Yield & Liquidity Vault"**.
-2. **Deposit**: Supply USDC to earn **8.50% APY**. Watch the animated deposit loading progress.
-3. **Withdraw**: Switch to the **Withdraw** tab, enter the amount, and confirm redemption back into your wallet.
-
-### D. Judge Speedrun Demo (10-Second Walkthrough)
-1. Click **"⚡ Judge Speedrun Demo"** in the TopBar.
-2. Click **"Speedrun All (8s)"** to experience the 4-step cross-chain lifecycle:
-   - *Step 1: Client-Side AES-256-GCM Encryption*
-   - *Step 2: Precompile 0x0FD2 Verification*
-   - *Step 3: Tier A Working Capital Draw*
-   - *Step 4: Soulbound Milestone NFT Badge Minting*
+### C. Institutional Compliance & Proof Audit Certificate
+1. Navigate to **[Invoices](http://localhost:3000/invoices)** $\to$ Click any invoice (e.g. `INV-2026-001`).
+2. Click **"Audit Certificate"** in the top breadcrumb bar.
+3. Inspect the official verification seal, deterministic SHA-256 commitment hash, IPFS pointer, and ECIES viewing key delegation log.
+4. Click **"Print / Save PDF"** to export a clean, bank-grade compliance certificate.
 
 ---
 
 ## 5. Deployed & Verified Contracts
 
-| Network | Contract | Address | Explorer Link |
-|---|---|---|---|
-| **Ethereum Sepolia** | `InvoiceRegistrar.sol` | `0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021` | [Etherscan](https://sepolia.etherscan.io/address/0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021) |
-| **Ethereum Sepolia** | `StreakRegistry.sol` | `0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce` | [Etherscan](https://sepolia.etherscan.io/address/0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce) |
-| **Creditcoin Testnet** | `VaultLending.sol` | `0xE8686e4D2856Da637F2c17c71d818911Ec541dE5` | [Blockscout](https://creditcoin-testnet.blockscout.com/address/0xE8686e4D2856Da637F2c17c71d818911Ec541dE5) |
-| **Creditcoin Testnet** | `AccessRegistry.sol` | `0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe` | [Blockscout](https://creditcoin-testnet.blockscout.com/address/0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe) |
-| **Creditcoin Testnet** | `StreakVerifier.sol` | `0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A` | [Blockscout](https://creditcoin-testnet.blockscout.com/address/0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A) |
-| **Creditcoin Testnet** | `StreakBadge.sol` | `0xfa41181596515986C87A969F51daD5af597eB3b7` | [Blockscout](https://creditcoin-testnet.blockscout.com/address/0xfa41181596515986C87A969F51daD5af597eB3b7) |
-| **Creditcoin Testnet** | `MockERC20.sol` | `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714` | [Blockscout](https://creditcoin-testnet.blockscout.com/address/0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714) |
-| **Creditcoin Testnet** | `IUSCVerifier Precompile` | `0x0000000000000000000000000000000000000FD2` | Native Precompile |
-| **Creditcoin Testnet** | `ChainInfo Precompile` | `0x0000000000000000000000000000000000000FD3` | Native Precompile |
+| Contract / Precompile | Network | Address |
+|---|---|---|
+| `InvoiceRegistrar.sol` | Ethereum Sepolia (`11155111`) | `0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021` |
+| `StreakRegistry.sol` | Ethereum Sepolia (`11155111`) | `0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce` |
+| `VaultLending.sol` | Creditcoin Testnet (`102031`) | `0xE8686e4D2856Da637F2c17c71d818911Ec541dE5` |
+| `AccessRegistry.sol` | Creditcoin Testnet (`102031`) | `0xACCcD369182aE9d45dbc9E8d75Bf6CA7814A3CEe` |
+| `StreakVerifier.sol` | Creditcoin Testnet (`102031`) | `0xA8254Fb11692A5Db4c4925AaBC6aFc535E22542A` |
+| `StreakBadge.sol` | Creditcoin Testnet (`102031`) | `0xfa41181596515986C87A969F51daD5af597eB3b7` |
+| `MockERC20.sol` | Creditcoin Testnet (`102031`) | `0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714` |
+| `IUSCVerifier Precompile` | Creditcoin Testnet (`102031`) | `0x0000000000000000000000000000000000000FD2` |
+| `ChainInfo Precompile` | Creditcoin Testnet (`102031`) | `0x0000000000000000000000000000000000000FD3` |

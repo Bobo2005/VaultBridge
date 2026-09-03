@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
+import { JudgeSandboxBar } from "../JudgeSandboxBar";
 import {
   LayoutDashboard,
   FileText,
@@ -185,6 +186,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           <span className="mt-0.5">More</span>
         </button>
       </nav>
+
+      {/* Global Interactive Judge Sandbox Toolbar */}
+      <JudgeSandboxBar />
     </div>
   );
 };
