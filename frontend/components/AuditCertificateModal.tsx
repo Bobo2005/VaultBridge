@@ -17,6 +17,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { soundFx } from "../lib/soundFx";
+import { GasSavingsCalculator } from "./GasSavingsCalculator";
 
 export interface AuditCertificateModalProps {
   isOpen: boolean;
@@ -192,6 +193,9 @@ Status: 100% Cryptographically Verified & Audited
               </div>
             </div>
           </div>
+
+          {/* Institutional Precompile Gas Savings Breakdown */}
+          <GasSavingsCalculator compact={true} />
 
           {/* Certificate Footer Stamp */}
           <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between gap-4 text-xs">

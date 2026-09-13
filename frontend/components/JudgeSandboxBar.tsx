@@ -23,12 +23,19 @@ import { JudgeDemoModal } from "./JudgeDemoModal";
 import { ProofVisualizerModal } from "./ProofVisualizerModal";
 
 export const JudgeSandboxBar: React.FC = () => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
+  const [demoModalInitialPlay, setDemoModalInitialPlay] = useState<boolean>(false);
   const [isInspectorModalOpen, setIsInspectorModalOpen] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [runningScenario, setRunningScenario] = useState<number | null>(null);
   const [scenarioStatus, setScenarioStatus] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setIsExpanded(true);
+    }
+  }, []);
 
   const toggleMute = () => {
     const nextMute = soundFx.toggleMute();
@@ -82,14 +89,14 @@ export const JudgeSandboxBar: React.FC = () => {
       {/* Floating Bottom Sandbox Bar */}
       <aside
         aria-label="Judge God Mode Sandbox"
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto"
+        className="fixed bottom-16 lg:bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto"
       >
-        <div className="bg-surface/95 backdrop-blur-xl border border-primary/40 rounded-2xl sm:rounded-3xl shadow-2xl p-2.5 sm:p-3 space-y-2">
+        <div className="bg-surface/95 backdrop-blur-xl border border-primary/40 rounded-2xl sm:rounded-3xl shadow-2xl p-2 sm:p-3 space-y-2 max-h-[75vh] overflow-y-auto">
           {/* Top Mini Header */}
           <div className="flex items-center justify-between px-2 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-black tracking-tight text-ink flex items-center gap-1.5">
+              <span className="font-black tracking-tight text-ink flex items-center gap-1.5 text-xs sm:text-sm">
                 <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                 Judge Sandbox &quot;God Mode&quot;
               </span>
@@ -109,8 +116,9 @@ export const JudgeSandboxBar: React.FC = () => {
 
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1 rounded-lg text-ink-secondary hover:text-ink hover:bg-bg transition-colors"
+                className="p-1.5 rounded-lg bg-bg border border-border text-ink-secondary hover:text-ink transition-colors flex items-center gap-1 text-[11px] font-medium"
               >
+                <span className="hidden xs:inline">{isExpanded ? "Collapse" : "Expand"}</span>
                 {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
               </button>
             </div>
@@ -126,7 +134,7 @@ export const JudgeSandboxBar: React.FC = () => {
 
           {/* Expanded Controls Grid */}
           {isExpanded && (
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 pt-1 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1.5 sm:gap-2 pt-1 text-xs">
               {/* Scenario 1: Happy Path RWA */}
               <button
                 onClick={() => handleRunScenario(1)}
@@ -201,16 +209,20 @@ export const JudgeSandboxBar: React.FC = () => {
               <button
                 onClick={() => {
                   soundFx.playClick();
+                  setDemoModalInitialPlay(true);
                   setIsDemoModalOpen(true);
                 }}
-                className="col-span-2 sm:col-span-1 p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-bold text-left transition-all shadow-md shadow-primary/30 hover:brightness-110 flex flex-col justify-between"
+                className="col-span-1 sm:col-span-2 lg:col-span-1 p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-primary via-blue-600 to-indigo-600 text-white font-bold text-left transition-all shadow-lg shadow-primary/30 hover:brightness-110 flex flex-col justify-between cursor-pointer"
               >
                 <div className="flex items-center justify-between w-full mb-1">
-                  <span className="text-[11px] font-bold">10s Speedrun</span>
+                  <span className="text-[11px] font-bold flex items-center gap-1">
+                    <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                    1-Click Speedrun
+                  </span>
                   <Play className="w-3.5 h-3.5 fill-white shrink-0" />
                 </div>
-                <span className="text-[10px] text-white/80 line-clamp-1">
-                  Full 4-Step Walkthrough
+                <span className="text-[10px] text-white/90 line-clamp-1">
+                  &lt;15s Full Lifecycle Demo
                 </span>
               </button>
             </div>
@@ -221,7 +233,11 @@ export const JudgeSandboxBar: React.FC = () => {
       {/* Speedrun Demo Modal */}
       <JudgeDemoModal
         isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
+        initialPlay={demoModalInitialPlay}
+        onClose={() => {
+          setIsDemoModalOpen(false);
+          setDemoModalInitialPlay(false);
+        }}
       />
 
       {/* Merkle Patricia Trie Proof Inspector Modal */}

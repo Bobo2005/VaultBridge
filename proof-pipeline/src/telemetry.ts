@@ -32,7 +32,7 @@ export interface TelemetryEvent {
 
 class TelemetryManager {
   private static instance: TelemetryManager;
-  private readonly MAX_BUFFER_SIZE = 50;
+  private readonly MAX_BUFFER_SIZE = 100;
   private eventBuffer: TelemetryEvent[] = [];
   private sseClients: Set<Response> = new Set();
 

@@ -59,6 +59,13 @@ describe("AccessRegistry Contract Tests", function () {
       ).to.be.revertedWith("AccessRegistry: Only owner can grant access");
     });
 
+    it("should BLOCK front-running grantAccess on unregistered dataId", async function () {
+      const unregId = ethers.utils.id("UNREGISTERED-DATA");
+      await expect(
+        accessRegistry.connect(attacker).grantAccess(unregId, attacker.address, ethers.utils.toUtf8Bytes("stolenKey"))
+      ).to.be.revertedWith("AccessRegistry: Data not registered");
+    });
+
     it("should allow owner to revoke access from a grantee", async function () {
       await accessRegistry.connect(owner).grantAccess(dataId, grantee1.address, grantee1KeyBytes);
       expect(await accessRegistry.hasAccess(dataId, grantee1.address)).to.be.true;

@@ -28,6 +28,7 @@ import { ClaimFaucetButton } from "../../../components/wallet/ClaimFaucetButton"
 import { subscribeToBalanceUpdates } from "../../../lib/balanceCache";
 import { AuditCertificateModal } from "../../../components/AuditCertificateModal";
 import { ProofVisualizerModal } from "../../../components/ProofVisualizerModal";
+import { GasSavingsCalculator } from "../../../components/GasSavingsCalculator";
 import { soundFx } from "../../../lib/soundFx";
 import {
   ChevronLeft,
@@ -56,7 +57,7 @@ import {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
-  const invoiceIdParam = (params?.id as string) || "INV-2026-001";
+  const invoiceIdParam = (params?.id as string) || "INV-SEP-001";
   const { address } = useAccount();
 
   const [invoice, setInvoice] = useState<InvoiceRecord | null>(null);
@@ -72,7 +73,7 @@ export default function InvoiceDetailPage() {
   const [isRestoring, setIsRestoring] = useState(false);
 
   const viewerAddresses = {
-    owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    owner: "0xe5Fa8f2f4152b51a4Ef9659D8f9b7811a17C9676",
     auditor: "0x789d3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f6ca2",
     unauthorized: "0x0000000000000000000000000000000000000000",
   };
@@ -291,10 +292,10 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1 bg-bg p-1 rounded-btn border border-border">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 bg-bg p-1 rounded-btn border border-border w-full md:w-auto">
           <button
             onClick={() => setActiveViewerRole("owner")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`flex-1 sm:flex-initial text-center px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
               activeViewerRole === "owner"
                 ? "bg-primary text-white shadow-xs"
                 : "text-ink-secondary hover:text-ink"
@@ -304,7 +305,7 @@ export default function InvoiceDetailPage() {
           </button>
           <button
             onClick={() => setActiveViewerRole("auditor")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`flex-1 sm:flex-initial text-center px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
               activeViewerRole === "auditor"
                 ? "bg-primary text-white shadow-xs"
                 : "text-ink-secondary hover:text-ink"
@@ -314,7 +315,7 @@ export default function InvoiceDetailPage() {
           </button>
           <button
             onClick={() => setActiveViewerRole("unauthorized")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`flex-1 sm:flex-initial text-center px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
               activeViewerRole === "unauthorized"
                 ? "bg-danger text-white shadow-xs"
                 : "text-ink-secondary hover:text-ink"
@@ -553,6 +554,37 @@ export default function InvoiceDetailPage() {
                 </a>
               </div>
             </div>
+
+            {/* Proof Visualizer & Audit Modal Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-border">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                icon={<Layers className="w-4 h-4 text-primary" />}
+                onClick={() => {
+                  soundFx.playClick();
+                  setIsProofVisualizerOpen(true);
+                }}
+              >
+                Inspect 0x0FD2 Merkle Proof
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10"
+                icon={<FileCheck className="w-4 h-4 text-emerald-600" />}
+                onClick={() => {
+                  soundFx.playClick();
+                  setIsAuditCertOpen(true);
+                }}
+              >
+                Institutional Audit Certificate
+              </Button>
+            </div>
+
+            {/* Interactive Precompile Gas Savings Calculator */}
+            <GasSavingsCalculator compact={true} className="mt-4" />
           </Card>
         </div>
 

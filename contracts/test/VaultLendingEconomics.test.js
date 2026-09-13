@@ -400,4 +400,28 @@ describe("VaultLending Game Theory, Economics & EIP-712 Rigor", function () {
       expect(storedKey).to.equal(ethers.utils.hexlify(wrappedKey));
     });
   });
+
+  describe("6. Emergency Circuit Breaker (Pausable)", function () {
+    it("Should allow owner to pause and unpause financial operations", async function () {
+      expect(await vaultLending.paused()).to.be.false;
+
+      // Pause contract
+      await vaultLending.connect(owner).pause();
+      expect(await vaultLending.paused()).to.be.true;
+
+      // Operations should revert when paused
+      await expect(
+        vaultLending.connect(borrower).depositLiquidity(usdcToken.address, ethers.utils.parseUnits("100", 6))
+      ).to.be.revertedWithCustomError(vaultLending, "EnforcedPause");
+
+      // Non-owner cannot unpause
+      await expect(
+        vaultLending.connect(borrower).unpause()
+      ).to.be.revertedWithCustomError(vaultLending, "OwnableUnauthorizedAccount");
+
+      // Owner unpauses
+      await vaultLending.connect(owner).unpause();
+      expect(await vaultLending.paused()).to.be.false;
+    });
+  });
 });

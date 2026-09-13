@@ -22,7 +22,8 @@ export async function submitProof(
   mockERC20Address: string,
   privateKey: string,
   proofType: 'positive' | 'absence',
-  proofParams: any
+  proofParams: any,
+  overrides: ethers.Overrides = {}
 ): Promise<any> {
   // Create providers and wallet for Creditcoin
   const creditcoinProvider = new ethers.JsonRpcProvider(creditcoinRpcUrl);
@@ -90,7 +91,8 @@ export async function submitProof(
       amount,
       debtor,
       dueDateBlock,
-      txHash
+      txHash,
+      overrides
     );
   } else if (proofType === 'absence') {
     const { invoiceId, dueDateBlock } = proofParams;
@@ -121,7 +123,8 @@ export async function submitProof(
       merkleProof,
       continuityProof,
       invoiceId,
-      dueDateBlock
+      dueDateBlock,
+      overrides
     );
   }
 

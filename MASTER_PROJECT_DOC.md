@@ -107,6 +107,11 @@ VaultBridge solves both challenges by leveraging Creditcoin’s native **Attestc
 | `IUSCVerifier Precompile` | `0x0000000000000000000000000000000000000FD2` | Native Precompile | Native Merkle Patricia Trie & Block Header Continuity Verifier |
 | `ChainInfo Precompile` | `0x0000000000000000000000000000000000000FD3` | Native Precompile | Cross-Chain Block Header & Height Oracle |
 
+### Live Verified On-Chain Transactions (Ethereum Sepolia)
+- **Invoice Issuance (`INV-SEP-001` on Block #11691999):** [`0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b`](https://sepolia.etherscan.io/tx/0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b)
+- **Streak Creation (`STRK-SEP-001`):** [`0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2`](https://sepolia.etherscan.io/tx/0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2)
+- **Streak Daily Check-In:** [`0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37`](https://sepolia.etherscan.io/tx/0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37)
+
 ---
 
 ## 5. Complete Repository File Structure

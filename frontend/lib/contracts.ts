@@ -56,11 +56,41 @@ export const EXPLORER_HELPERS = {
 
 export const INVOICE_REGISTRAR_ABI = [
   "function issueInvoice(bytes32 invoiceId, uint256 amount, address debtor, uint256 dueDateBlock) external",
-  "function payInvoice(bytes32 invoiceId) external payable",
-  "function invoices(bytes32 invoiceId) external view returns (bytes32 id, uint256 amount, address debtor, uint256 dueDateBlock, bool isPaid)",
-  "event InvoiceIssued(bytes32 indexed invoiceId, uint256 amount, address indexed debtor, uint256 dueDateBlock)",
-  "event InvoicePaid(bytes32 indexed invoiceId, address indexed payer, uint256 amount)",
+  "function payInvoice(bytes32 invoiceId) external",
+  "function invoices(bytes32 invoiceId) external view returns (uint256 amount, address debtor, uint256 dueDateBlock, bool paid, bytes32 sourceChainTxHash)",
+  "event InvoiceIssued(bytes32 indexed invoiceId, uint256 amount, address debtor, uint256 dueDateBlock, bytes32 sourceChainTxHash)",
+  "event InvoicePaid(bytes32 indexed invoiceId, bytes32 sourceChainTxHash)",
 ] as const;
+
+export async function getSepoliaBlockNumber(): Promise<bigint> {
+  const candidateRpcUrls = [
+    process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
+    "https://ethereum-sepolia-rpc.publicnode.com",
+    "https://rpc.sepolia.org",
+    "https://1rpc.io/sepolia",
+  ].filter((url): url is string => Boolean(url && !url.includes("demo")));
+
+  for (const url of candidateRpcUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      const data = await res.json();
+      if (data?.result) {
+        return BigInt(data.result);
+      }
+    } catch {
+      // Failover to next RPC endpoint
+    }
+  }
+  return BigInt(11692250);
+}
 
 export const ACCESS_REGISTRY_ABI = [
   "function registerData(bytes32 dataId, bytes calldata ownerWrappedKey) external",

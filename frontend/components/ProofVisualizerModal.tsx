@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { soundFx } from "../lib/soundFx";
+import { GasSavingsCalculator } from "./GasSavingsCalculator";
 
 export interface ProofVisualizerModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const ProofVisualizerModal: React.FC<ProofVisualizerModalProps> = ({
   invoiceId = "INV-2026-PRIME-001",
   blockHeight = 7219482,
 }) => {
+  const [activeTab, setActiveTab] = useState<"trie" | "benchmark">("trie");
   const [activeLayer, setActiveLayer] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
 
@@ -123,43 +125,81 @@ export const ProofVisualizerModal: React.FC<ProofVisualizerModalProps> = ({
           </button>
         </div>
 
+        {/* View Switcher Tabs */}
+        <div className="flex border-b border-border bg-bg/50 px-4 sm:px-6 gap-2 text-xs font-semibold overflow-x-auto">
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setActiveTab("trie");
+            }}
+            className={`py-3 px-3 border-b-2 transition-all flex items-center gap-1.5 ${
+              activeTab === "trie"
+                ? "border-primary text-primary font-bold bg-primary-tint/30"
+                : "border-transparent text-ink-secondary hover:text-ink"
+            }`}
+          >
+            <Binary className="w-3.5 h-3.5" />
+            <span>Merkle Trie Decomposition</span>
+          </button>
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setActiveTab("benchmark");
+            }}
+            className={`py-3 px-3 border-b-2 transition-all flex items-center gap-1.5 ${
+              activeTab === "benchmark"
+                ? "border-emerald-500 text-emerald-600 font-bold bg-emerald-500/10"
+                : "border-transparent text-ink-secondary hover:text-ink"
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+            <span>0x0FD2 Gas Savings Benchmark (86.3%)</span>
+          </button>
+        </div>
+
         {/* Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
-          {/* Top Quick Meta */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 rounded-2xl bg-bg border border-border">
-              <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
-                Source Block
-              </span>
-              <p className="text-sm font-bold text-ink mt-0.5">#{blockHeight}</p>
-              <span className="text-[10px] text-primary font-medium">Sepolia Attested</span>
+          {activeTab === "benchmark" ? (
+            <div className="space-y-4 animate-in fade-in duration-150">
+              <GasSavingsCalculator />
             </div>
-            <div className="p-3 rounded-2xl bg-bg border border-border">
-              <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
-                Precompile Gas
-              </span>
-              <p className="text-sm font-bold text-emerald-600 mt-0.5">28,500 Gas</p>
-              <span className="text-[10px] text-emerald-600 font-medium">⚡ 45.2% Saved</span>
-            </div>
-            <div className="p-3 rounded-2xl bg-bg border border-border">
-              <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
-                Target Contract
-              </span>
-              <p className="text-xs font-mono font-bold text-ink truncate mt-0.5">
-                0x000...0FD2
-              </p>
-              <span className="text-[10px] text-ink-secondary">Native Precompile</span>
-            </div>
-            <div className="p-3 rounded-2xl bg-bg border border-border">
-              <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
-                Status
-              </span>
-              <div className="flex items-center gap-1 text-emerald-600 font-bold text-xs mt-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Cryptographically Valid</span>
+          ) : (
+            <>
+              {/* Top Quick Meta */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3 rounded-2xl bg-bg border border-border">
+                  <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
+                    Source Block
+                  </span>
+                  <p className="text-sm font-bold text-ink mt-0.5">#{blockHeight}</p>
+                  <span className="text-[10px] text-primary font-medium">Sepolia Attested</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-bg border border-border">
+                  <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
+                    Precompile Gas
+                  </span>
+                  <p className="text-sm font-bold text-emerald-600 mt-0.5">28,500 Gas</p>
+                  <span className="text-[10px] text-emerald-600 font-medium">⚡ 45.2% Saved</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-bg border border-border">
+                  <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
+                    Target Contract
+                  </span>
+                  <p className="text-xs font-mono font-bold text-ink truncate mt-0.5">
+                    0x000...0FD2
+                  </p>
+                  <span className="text-[10px] text-ink-secondary">Native Precompile</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-bg border border-border">
+                  <span className="text-[10px] font-bold text-ink-tertiary uppercase tracking-wider">
+                    Status
+                  </span>
+                  <div className="flex items-center gap-1 text-emerald-600 font-bold text-xs mt-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Cryptographically Valid</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
           {/* Interactive Trie Graph Layers */}
           <div className="space-y-3">
@@ -276,7 +316,9 @@ export const ProofVisualizerModal: React.FC<ProofVisualizerModalProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </>
+      )}
+    </div>
 
         {/* Footer */}
         <div className="p-4 sm:p-6 border-t border-border bg-bg/50 flex flex-col sm:flex-row items-center justify-between gap-3">

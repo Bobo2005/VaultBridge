@@ -67,13 +67,8 @@ contract AccessRegistry is EIP712 {
         require(grantee != address(0), "AccessRegistry: Invalid grantee address");
         require(wrappedKeyForGrantee.length > 0, "AccessRegistry: Empty wrapped key");
 
-        // If dataId not registered yet, caller becomes the owner
-        if (dataOwners[dataId] == address(0)) {
-            dataOwners[dataId] = msg.sender;
-            emit DataRegistered(dataId, msg.sender);
-        } else {
-            require(msg.sender == dataOwners[dataId], "AccessRegistry: Only owner can grant access");
-        }
+        require(dataOwners[dataId] != address(0), "AccessRegistry: Data not registered");
+        require(msg.sender == dataOwners[dataId], "AccessRegistry: Only owner can grant access");
 
         _wrappedKeys[dataId][grantee] = wrappedKeyForGrantee;
         emit AccessGranted(dataId, msg.sender, grantee);

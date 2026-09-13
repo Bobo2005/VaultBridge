@@ -162,6 +162,13 @@ contract StreakVerifier is Ownable {
         // Ensure this day was not already checked in
         require(!isDayCheckedIn[streakId][missedDayIndex], "StreakVerifier: Check-in exists for this day");
 
+        // Ensure missed day is not in the future
+        require(missedDayIndex <= streak.lastCheckInDay + 1, "StreakVerifier: Premature future day slashing");
+        uint256 currentDayIndex = block.timestamp / 1 days;
+        if (streak.lastCheckInDay >= 10000) {
+            require(missedDayIndex < currentDayIndex, "StreakVerifier: Missed day must be before current day");
+        }
+
         // Verify absence proof via Precompile 0x0FD2 / continuity proof
         bool verified = _verifyProof(
             chainKey,

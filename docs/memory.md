@@ -30,6 +30,7 @@
 | 2026-08-31 | Massive Testnet Liquidity (51,000,000 USDC On-Chain) | Minted 50M MockUSDC directly into `VaultLending.sol` and 5M MockUSDC to user wallet via `mint_huge_liquidity.js`. Verified 51M USDC pool balance. |
 | 2026-08-31 | Multi-Stage Interactive Loading States | Added multi-step animated progress bars and stage status indicators across Wallet Connect, Borrowing, Repaying, Yield Vault Deposits/Withdrawals, and Faucet minting. |
 | 2026-08-31 | Multi-Tier Faucet Amounts (+10k, +50k, +100k, +1M USDC) | Extended `/api/faucet` and `ClaimFaucetButton.tsx` to support claiming up to 1,000,000 USDC in 1-click for large institutional facility testing. |
+| 2026-09-13 | Live Sepolia On-Chain Verification & Dummy Data Purge | Broadcast live Sepolia transactions for InvoiceRegistrar (`INV-SEP-001`, block #11691999) and StreakRegistry (`STRK-SEP-001`). Purged all fake mock invoices/loans/streaks. Implemented dynamic `getSepoliaBlockNumber()` polling and upgraded local ledger storage to `_v3`. Synchronized ABIs and removed stale `contracts.js`. |
 
 ## Soulbound StreakBadge Call Pattern
 - **Contract Interface:** `StreakBadge.mintMilestoneBadge(address to, bytes32 streakId, uint256 milestoneDays)`
@@ -83,3 +84,8 @@
 - **MockPriceOracle.sol (Creditcoin):** `0x2279B7A0a67E1418866B777B764380E68Fa0b3ee` ✅
 - **Precompile Verifier (Creditcoin):** `0x0000000000000000000000000000000000000FD2` ⚡
 - **ChainInfo Precompile (Creditcoin):** `0x0000000000000000000000000000000000000FD3` ⚡
+
+## Live Verified On-Chain Transactions (Sepolia)
+- **Live Invoice Issuance (`INV-SEP-001` on Block #11691999):** [`0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b`](https://sepolia.etherscan.io/tx/0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b)
+- **Live Streak Creation (`STRK-SEP-001`):** [`0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2`](https://sepolia.etherscan.io/tx/0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2)
+- **Live Streak Daily Check-In:** [`0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37`](https://sepolia.etherscan.io/tx/0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37)

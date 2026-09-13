@@ -24,7 +24,7 @@ describe("Phase 2: Autonomous Watchtower, SSE Telemetry & Proof Inspector Suite"
   });
 
   describe("1. Telemetry Manager & Circular Buffer Retention", () => {
-    it("should broadcast events, retain the last 50, and compute aggregated metrics", () => {
+    it("should broadcast events, retain the last 100, and compute aggregated metrics", () => {
       telemetry.broadcast({
         type: "InclusionProofGenerated",
         title: "Test Inclusion Event",
@@ -38,7 +38,7 @@ describe("Phase 2: Autonomous Watchtower, SSE Telemetry & Proof Inspector Suite"
 
       const history = telemetry.getHistory();
       expect(history.totalTracked).toBeGreaterThanOrEqual(1);
-      expect(history.totalTracked).toBeLessThanOrEqual(50);
+      expect(history.totalTracked).toBeLessThanOrEqual(100);
       expect(history.avgLatencyMs).toBeGreaterThan(0);
       expect(history.totalGasSavedUnits).toBeGreaterThan(0);
 
@@ -47,8 +47,8 @@ describe("Phase 2: Autonomous Watchtower, SSE Telemetry & Proof Inspector Suite"
       expect(latest.latencyMs).toBe(250);
     });
 
-    it("should maintain circular buffer boundary without overflowing 50 items", () => {
-      for (let i = 0; i < 60; i++) {
+    it("should maintain circular buffer boundary without overflowing 100 items", () => {
+      for (let i = 0; i < 110; i++) {
         telemetry.broadcast({
           type: "Heartbeat",
           title: `Heartbeat #${i}`,
@@ -60,9 +60,9 @@ describe("Phase 2: Autonomous Watchtower, SSE Telemetry & Proof Inspector Suite"
       }
 
       const history = telemetry.getHistory();
-      expect(history.totalTracked).toBe(50);
-      expect(history.events.length).toBe(50);
-      expect(history.events[0].title).toBe("Heartbeat #59");
+      expect(history.totalTracked).toBe(100);
+      expect(history.events.length).toBe(100);
+      expect(history.events[0].title).toBe("Heartbeat #109");
     });
   });
 

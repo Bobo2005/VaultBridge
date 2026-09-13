@@ -26,7 +26,7 @@ import {
 
 import { useAccount, useWalletClient } from "wagmi";
 import { parseEther, parseUnits } from "viem";
-import { CONTRACT_ADDRESSES, INVOICE_REGISTRAR_ABI, VAULT_LENDING_ABI } from "../../lib/contracts";
+import { CONTRACT_ADDRESSES, INVOICE_REGISTRAR_ABI, VAULT_LENDING_ABI, getSepoliaBlockNumber } from "../../lib/contracts";
 import { recordLocalTokenTransaction, invalidateBalanceCache, triggerBalanceRefresh } from "../../lib/balanceCache";
 
 export default function DashboardPage() {
@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   // Form states for new invoice
   const [newAmountEth, setNewAmountEth] = useState("10");
-  const [newDebtor, setNewDebtor] = useState("0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d");
+  const [newDebtor, setNewDebtor] = useState("0x112233445566778899AabbcCDDeEFF0011223344");
   const [newRiskTier, setNewRiskTier] = useState<"Tier A (Prime 80%)" | "Tier B (Standard 70%)" | "Tier C (Subprime 50%)">("Tier B (Standard 70%)");
 
   // Attestation Progress state
@@ -72,15 +72,17 @@ export default function DashboardPage() {
     try {
       const amount = parseFloat(newAmountEth) || 10;
       let liveTxHash = "";
+      const curBlock = await getSepoliaBlockNumber();
+      const dueDateBlock = curBlock + BigInt(5000);
+
+      const invoiceBytes32 = ("0x" +
+        Array.from({ length: 64 }, () =>
+          Math.floor(Math.random() * 16).toString(16)
+        ).join("")) as `0x${string}`;
 
       if (walletClient && address) {
         try {
-          const invoiceBytes32 = ("0x" +
-            Array.from({ length: 64 }, () =>
-              Math.floor(Math.random() * 16).toString(16)
-            ).join("")) as `0x${string}`;
           const amountWei = parseEther(amount.toString());
-          const dueDateBlock = BigInt(11566330 + 1000);
 
           liveTxHash = await walletClient.writeContract({
             address: CONTRACT_ADDRESSES.sepolia.invoiceRegistrar as `0x${string}`,
@@ -111,6 +113,8 @@ export default function DashboardPage() {
         debtor: newDebtor,
         riskTier: newRiskTier,
         txHash: liveTxHash || undefined,
+        invoiceIdHex: invoiceBytes32,
+        dueDateBlock: Number(dueDateBlock),
       });
 
       setIsIssueModalOpen(false);
@@ -277,7 +281,8 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-bg/80 border-b border-border">
                   <tr className="text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
@@ -320,6 +325,37 @@ export default function DashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card List View (< md) */}
+            <div className="md:hidden divide-y divide-border/60">
+              {invoices.slice(0, 4).map((inv) => (
+                <div key={inv.id} className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link href={`/invoices/${inv.id}`} className="font-bold text-sm text-ink hover:text-primary transition-colors flex items-center gap-1">
+                      <span>{inv.id}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
+                    </Link>
+                    <AttestationBadge status={inv.status} size="sm" />
+                  </div>
+                  <div className="flex items-center justify-between text-xs bg-bg/50 p-2 rounded-xl border border-border/50">
+                    <div>
+                      <span className="text-[10px] text-ink-secondary uppercase font-semibold">Face Value</span>
+                      <p className="font-bold text-ink">${inv.amountUsd.toLocaleString()} <span className="text-[10px] font-normal text-ink-secondary">({inv.amountEth} ETH)</span></p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-tint text-primary border border-primary/20">
+                      {inv.riskTier || "Tier B (70%)"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <Link href={`/invoices/${inv.id}`} className="w-full">
+                      <Button size="sm" variant="outline" className="w-full justify-center">
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         </div>

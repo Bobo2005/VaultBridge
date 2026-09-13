@@ -4,7 +4,11 @@ pragma solidity ^0.8.20;
 import "./interfaces/IUSCVerifier.sol";
 import "./interfaces/IPriceOracle.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -13,7 +17,8 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  * @notice Privacy-preserving cross-chain invoice financing vault on Creditcoin with dynamic risk-tiered LTV caps,
  * continuous interest accrual, liquidator keeper bounties, gasless EIP-712 permits, and precompile 0x0FD2 attestation verification.
  */
-contract VaultLending is Ownable, EIP712 {
+contract VaultLending is Ownable, EIP712, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
     // Precompile address for BlockProver (0x0FD2)
     address internal constant BLOCK_PROVER_PRECOMPILE =
         0x0000000000000000000000000000000000000FD2;
@@ -147,6 +152,14 @@ contract VaultLending is Ownable, EIP712 {
     function setVerifier(address _verifier) external onlyOwner {
         require(_verifier != address(0), "Invalid verifier address");
         verifierAddress = _verifier;
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     function _verifySingle(
@@ -284,7 +297,7 @@ contract VaultLending is Ownable, EIP712 {
         address debtor,
         uint256 dueDateBlock,
         bytes32 sourceChainTxHash
-    ) external {
+    ) external whenNotPaused {
         bool verified = _verifySingle(
             chainKey,
             height,
@@ -325,7 +338,7 @@ contract VaultLending is Ownable, EIP712 {
         address debtor,
         uint256 dueDateBlock,
         bytes32 sourceChainTxHash
-    ) external {
+    ) external whenNotPaused {
         bool verified = _verifySingle(
             chainKey,
             height,
@@ -372,7 +385,7 @@ contract VaultLending is Ownable, EIP712 {
         address[] calldata debtors,
         uint256[] calldata dueDateBlocks,
         bytes32[] calldata sourceChainTxHashes
-    ) external {
+    ) external whenNotPaused {
         uint256 len = invoiceIds.length;
         require(len > 0 && len <= 20, "Batch size must be 1-20");
         require(heights.length == len, "Heights length mismatch");
@@ -418,7 +431,7 @@ contract VaultLending is Ownable, EIP712 {
     /**
      * @dev Borrow against an invoice with dynamic tiered LTV cap in standard token
      */
-    function borrow(bytes32 invoiceId, uint256 amount) external returns (bytes32 loanId) {
+    function borrow(bytes32 invoiceId, uint256 amount) external whenNotPaused returns (bytes32 loanId) {
         return borrowWithToken(invoiceId, mockToken, amount);
     }
 
@@ -429,7 +442,7 @@ contract VaultLending is Ownable, EIP712 {
         bytes32 invoiceId,
         address tokenToBorrow,
         uint256 amount
-    ) public returns (bytes32 loanId) {
+    ) public whenNotPaused nonReentrant returns (bytes32 loanId) {
         return _executeBorrow(invoiceId, tokenToBorrow, amount, msg.sender);
     }
 
@@ -445,7 +458,7 @@ contract VaultLending is Ownable, EIP712 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external returns (bytes32 loanId) {
+    ) external whenNotPaused nonReentrant returns (bytes32 loanId) {
         require(block.timestamp <= deadline, "VaultLending: Permit signature expired");
         require(borrower != address(0), "VaultLending: Invalid borrower address");
 
@@ -478,15 +491,31 @@ contract VaultLending is Ownable, EIP712 {
         require(invoice.active && invoice.status == 0, "Invoice not available for borrowing");
         require(supportedTokens[tokenToBorrow], "Unsupported borrow token");
 
-        // Calculate dynamic maximum borrowable amount based on debtor risk tier
-        uint256 debtorLtvBps = getDebtorLtvCap(invoice.debtor);
-        uint256 maxBorrowable = (invoice.amount * debtorLtvBps) / 10000;
+        uint8 tokenDecimals = 18;
+        try IERC20Metadata(tokenToBorrow).decimals() returns (uint8 dec) {
+            tokenDecimals = dec;
+        } catch {}
+
+        uint256 collateralValuation = invoice.amount;
 
         // If oracle is connected, convert collateral valuation to borrow token value
         if (address(priceOracle) != address(0)) {
             require(priceOracle.isPriceFresh(address(0), maxOracleStaleness), "Stale collateral price");
             require(priceOracle.isPriceFresh(tokenToBorrow, maxOracleStaleness), "Stale borrow token price");
+
+            (uint256 collateralPrice, ) = priceOracle.getAssetPrice(address(0));
+            (uint256 borrowTokenPrice, ) = priceOracle.getAssetPrice(tokenToBorrow);
+            if (collateralPrice > 0 && borrowTokenPrice > 0) {
+                collateralValuation = (invoice.amount * collateralPrice) / borrowTokenPrice;
+                if (tokenDecimals < 18 && invoice.amount >= 1e18) {
+                    collateralValuation = collateralValuation / (10 ** (18 - tokenDecimals));
+                }
+            }
         }
+
+        // Calculate dynamic maximum borrowable amount based on debtor risk tier
+        uint256 debtorLtvBps = getDebtorLtvCap(invoice.debtor);
+        uint256 maxBorrowable = (collateralValuation * debtorLtvBps) / 10000;
 
         require(amount <= maxBorrowable, "Exceeds dynamic LTV cap");
 
@@ -511,7 +540,7 @@ contract VaultLending is Ownable, EIP712 {
         invoice.status = 1; // Borrowed
         totalBorrowed[tokenToBorrow] += amount;
 
-        require(IERC20(tokenToBorrow).transfer(recipient, amount), "Token transfer failed");
+        IERC20(tokenToBorrow).safeTransfer(recipient, amount);
 
         emit LoanCreated(loanId, invoiceId, recipient, tokenToBorrow, amount, actualLtv);
     }
@@ -519,10 +548,10 @@ contract VaultLending is Ownable, EIP712 {
     /**
      * @dev Deposit liquidity into the lending pool (USDC, EURC, MockToken)
      */
-    function depositLiquidity(address token, uint256 amount) external {
+    function depositLiquidity(address token, uint256 amount) external whenNotPaused nonReentrant {
         require(supportedTokens[token], "Unsupported deposit token");
         require(amount > 0, "Amount must be > 0");
-        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "Token deposit transfer failed");
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
         lenderBalances[msg.sender][token] += amount;
         totalDeposited[token] += amount;
@@ -532,7 +561,7 @@ contract VaultLending is Ownable, EIP712 {
     /**
      * @dev Withdraw liquidity from the lending pool
      */
-    function withdrawLiquidity(address token, uint256 amount) external {
+    function withdrawLiquidity(address token, uint256 amount) external whenNotPaused nonReentrant {
         require(amount > 0, "Amount must be > 0");
         require(lenderBalances[msg.sender][token] >= amount, "Insufficient deposited balance");
         require(IERC20(token).balanceOf(address(this)) >= amount, "Insufficient pool liquidity");
@@ -544,7 +573,7 @@ contract VaultLending is Ownable, EIP712 {
             totalDeposited[token] = 0;
         }
 
-        require(IERC20(token).transfer(msg.sender, amount), "Token withdrawal transfer failed");
+        IERC20(token).safeTransfer(msg.sender, amount);
 
         emit LiquidityWithdrawn(msg.sender, token, amount);
     }
@@ -552,7 +581,7 @@ contract VaultLending is Ownable, EIP712 {
     /**
      * @dev Repay a loan by invoiceId
      */
-    function repayInvoice(bytes32 invoiceId) external {
+    function repayInvoice(bytes32 invoiceId) external whenNotPaused nonReentrant {
         bytes32 loanId = invoiceIdToLoanId[invoiceId];
         require(loanId != bytes32(0), "No active loan for invoice");
         _repayLoan(loanId);
@@ -561,14 +590,14 @@ contract VaultLending is Ownable, EIP712 {
     /**
      * @dev Repay a loan and mark invoice as paid
      */
-    function repay(bytes32 loanId) external {
+    function repay(bytes32 loanId) external whenNotPaused nonReentrant {
         _repayLoan(loanId);
     }
 
     /**
      * @notice Performs a partial repayment on an active loan (principal + interest)
      */
-    function repayPartial(bytes32 loanId, uint256 amount) external {
+    function repayPartial(bytes32 loanId, uint256 amount) external whenNotPaused nonReentrant {
         Loan storage loan = loans[loanId];
         require(loan.active && loan.status == 0, "Loan not active");
         require(amount > 0, "Amount must be > 0");
@@ -579,7 +608,7 @@ contract VaultLending is Ownable, EIP712 {
 
         address tokenToRepay = loan.loanToken != address(0) ? loan.loanToken : mockToken;
         require(IERC20(tokenToRepay).balanceOf(msg.sender) >= amount, "Insufficient balance for repayment");
-        require(IERC20(tokenToRepay).transferFrom(msg.sender, address(this), amount), "Token transfer failed");
+        IERC20(tokenToRepay).safeTransferFrom(msg.sender, address(this), amount);
 
         if (amount >= accrued) {
             uint256 principalRepaid = amount - accrued;
@@ -618,7 +647,7 @@ contract VaultLending is Ownable, EIP712 {
         uint256 totalOwed = loan.principal + accruedInterest;
 
         require(IERC20(tokenToRepay).balanceOf(msg.sender) >= totalOwed, "Insufficient balance to repay principal and interest");
-        require(IERC20(tokenToRepay).transferFrom(msg.sender, address(this), totalOwed), "Token transfer failed");
+        IERC20(tokenToRepay).safeTransferFrom(msg.sender, address(this), totalOwed);
 
         if (totalBorrowed[tokenToRepay] >= loan.principal) {
             totalBorrowed[tokenToRepay] -= loan.principal;
@@ -651,7 +680,7 @@ contract VaultLending is Ownable, EIP712 {
         bytes calldata continuityProof,
         bytes32 invoiceId,
         bytes32 sourceChainTxHash
-    ) external {
+    ) external whenNotPaused nonReentrant {
         bool verified = _verifySingle(
             chainKey,
             height,
@@ -697,7 +726,7 @@ contract VaultLending is Ownable, EIP712 {
         bytes32 invoiceId,
         uint256 amountSettled,
         bytes32 sourceChainTxHash
-    ) external {
+    ) external whenNotPaused nonReentrant {
         bool verified = _verifySingle(
             chainKey,
             height,
@@ -753,7 +782,7 @@ contract VaultLending is Ownable, EIP712 {
         bytes calldata continuityProof,
         bytes32 invoiceId,
         uint256 dueDateBlock
-    ) external {
+    ) external whenNotPaused nonReentrant {
         bool verified = _verifySingle(
             chainKey,
             height,
@@ -763,7 +792,7 @@ contract VaultLending is Ownable, EIP712 {
         );
 
         require(verified, "Invalid absence proof");
-        require(height == dueDateBlock, "Height must equal dueDateBlock for absence proof");
+        require(height >= dueDateBlock, "Invoice not yet overdue");
 
         Invoice storage invoice = invoices[invoiceId];
         require(invoice.active, "Invoice not active");
@@ -793,7 +822,7 @@ contract VaultLending is Ownable, EIP712 {
         uint256 actualBounty = bountyAmount <= availableBal ? bountyAmount : availableBal;
 
         if (actualBounty > 0) {
-            IERC20(loanToken).transfer(msg.sender, actualBounty);
+            IERC20(loanToken).safeTransfer(msg.sender, actualBounty);
         }
 
         emit LoanLiquidated(loanId);

@@ -4,7 +4,8 @@
   "description": "Off-chain proof generation service for VaultBridge",
   "main": "dist/src/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=pipeline.isolation.test.ts --forceExit",
+    "test:isolation": "jest test/pipeline.isolation.test.ts",
     "build": "tsc",
     "start": "node dist/src/index.js",
     "dev": "ts-node src/index.ts",

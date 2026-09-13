@@ -24,14 +24,22 @@ export const CREDITCOIN_FALLBACK_RPCS = [
 export async function fetchWithRetry<T>(
   fn: () => Promise<T>,
   maxRetries: number = 3,
-  delayMs: number = 1500,
-  description: string = "network operation"
+  delayMs: number = 1000,
+  description: string = "network operation",
+  timeoutMs: number = 3000
 ): Promise<T> {
   let lastError: any;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await fn();
+      const opPromise = fn();
+      const timeoutPromise = new Promise<T>((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`${description} timed out after ${timeoutMs}ms`)),
+          timeoutMs
+        )
+      );
+      return await Promise.race([opPromise, timeoutPromise]);
     } catch (error: any) {
       lastError = error;
       const isRateLimit =

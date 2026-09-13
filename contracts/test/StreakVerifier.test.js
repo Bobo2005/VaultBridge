@@ -198,4 +198,22 @@ describe("StreakVerifier & StreakBadge (Milestone S3)", function () {
     expect(state.currentCount).to.equal(3);
     expect(state.lastCheckInDay).to.equal(2);
   });
+
+  it("should BLOCK premature future day slashing", async function () {
+    const streakId = ethers.utils.id("streak-premature-slashing");
+    await streakVerifier.registerCheckIn(1, 1000, "0x", "0x", "0x", streakId, 0, user1.address);
+
+    // Attempting to slash day 5 when user is only at day 0 must revert
+    await expect(
+      streakVerifier.connect(hunter).breakStreakIfMissed(
+        1,
+        1200,
+        "0x",
+        "0x",
+        "0x",
+        streakId,
+        5
+      )
+    ).to.be.revertedWith("StreakVerifier: Premature future day slashing");
+  });
 });

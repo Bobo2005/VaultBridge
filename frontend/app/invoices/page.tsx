@@ -26,7 +26,7 @@ import {
 
 import { useAccount, useWalletClient } from "wagmi";
 import { parseEther } from "viem";
-import { CONTRACT_ADDRESSES, INVOICE_REGISTRAR_ABI, EXPLORER_HELPERS } from "../../lib/contracts";
+import { CONTRACT_ADDRESSES, INVOICE_REGISTRAR_ABI, EXPLORER_HELPERS, getSepoliaBlockNumber } from "../../lib/contracts";
 
 export default function InvoicesPage() {
   const { address } = useAccount();
@@ -45,12 +45,12 @@ export default function InvoicesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form states for new invoice
-  const [newAmountEth, setNewAmountEth] = useState("15");
-  const [newDebtor, setNewDebtor] = useState("0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d");
+  const [newAmountEth, setNewAmountEth] = useState("10");
+  const [newDebtor, setNewDebtor] = useState("0x112233445566778899AabbcCDDeEFF0011223344");
 
   // Batch Attest state
   const [batchCsvText, setBatchCsvText] = useState(
-    "INV-2026-009,12.5,0xAaBbCcDdEeFf00112233445566778899aAbBcCdD,11568200\nINV-2026-010,8.0,0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d,11568400\nINV-2026-011,25.0,0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714,11569000"
+    "INV-SEP-002,12.5,0x112233445566778899AabbcCDDeEFF0011223344,11705000\nINV-SEP-003,8.0,0x112233445566778899AabbcCDDeEFF0011223344,11706000\nINV-SEP-004,25.0,0x5a892509a0eeEe4fA12aFDC1D3d9B59C11efA714,11707000"
   );
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [batchSuccessCount, setBatchSuccessCount] = useState<number | null>(null);
@@ -82,15 +82,17 @@ export default function InvoicesPage() {
     try {
       const amount = parseFloat(newAmountEth) || 10;
       let liveTxHash = "";
+      const curBlock = await getSepoliaBlockNumber();
+      const dueDateBlock = curBlock + BigInt(5000);
+
+      const invoiceBytes32 = ("0x" +
+        Array.from({ length: 64 }, () =>
+          Math.floor(Math.random() * 16).toString(16)
+        ).join("")) as `0x${string}`;
 
       if (walletClient && address) {
         try {
-          const invoiceBytes32 = ("0x" +
-            Array.from({ length: 64 }, () =>
-              Math.floor(Math.random() * 16).toString(16)
-            ).join("")) as `0x${string}`;
           const amountWei = parseEther(amount.toString());
-          const dueDateBlock = BigInt(11566330 + 1000);
 
           liveTxHash = await walletClient.writeContract({
             address: CONTRACT_ADDRESSES.sepolia.invoiceRegistrar as `0x${string}`,
@@ -120,6 +122,8 @@ export default function InvoicesPage() {
         amountEth: amount,
         debtor: newDebtor,
         txHash: liveTxHash || undefined,
+        invoiceIdHex: invoiceBytes32,
+        dueDateBlock: Number(dueDateBlock),
       });
 
       setIsIssueModalOpen(false);
@@ -293,9 +297,10 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {/* Main Invoices Table Card */}
+      {/* Main Invoices Table / Mobile Cards */}
       <Card className="p-0 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (hidden on screens < md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-bg/80 border-b border-border">
               <tr className="text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
@@ -435,6 +440,112 @@ export default function InvoicesPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card List View (visible on screens < md) */}
+        <div className="md:hidden divide-y divide-border/60">
+          {filteredInvoices.map((inv) => (
+            <div key={inv.id} className="p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <Link
+                  href={`/invoices/${inv.id}`}
+                  className="font-bold text-sm text-ink hover:text-primary transition-colors flex items-center gap-1"
+                >
+                  <span>{inv.id}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
+                </Link>
+                <AttestationBadge status={inv.status} size="sm" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs bg-bg/50 p-2.5 rounded-xl border border-border/50">
+                <div>
+                  <span className="text-[10px] text-ink-secondary uppercase font-semibold">Face Value</span>
+                  <p className="font-bold text-ink">${inv.amountUsd.toLocaleString()}</p>
+                  <p className="text-[10px] text-ink-secondary">{inv.amountEth} ETH</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-ink-secondary uppercase font-semibold">Due Block</span>
+                  <p className="font-mono text-ink font-medium">#{inv.dueDateBlock.toLocaleString()}</p>
+                  <span className="text-[10px] text-primary font-mono truncate block">
+                    {inv.debtor.slice(0, 6)}...{inv.debtor.slice(-4)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center flex-wrap gap-2 pt-1">
+                {inv.status === "Attested" && (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    className="w-full justify-center"
+                    onClick={() => {
+                      setSelectedInvoice(inv);
+                      setBorrowAmount(Math.round(inv.amountUsd * 0.7));
+                      setIsBorrowModalOpen(true);
+                    }}
+                  >
+                    Draw Capital
+                  </Button>
+                )}
+
+                {inv.status === "Borrowed" && (
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="justify-center"
+                      onClick={() => handleSimulatePayment(inv.id)}
+                    >
+                      Simulate Pay
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="justify-center text-danger border-rose-200"
+                      onClick={() => handleTriggerDefaultCheck(inv.id)}
+                    >
+                      Check Default
+                    </Button>
+                  </div>
+                )}
+
+                {inv.status === "Awaiting Proof" && (
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    className="w-full justify-center"
+                    onClick={async () => {
+                      setIsAttesting(true);
+                      setActiveTxHash(inv.txHash);
+                      await VaultBridgeAPI.runInteractiveAttestation(inv.id, (step, pct, title) => {
+                        setAttestationPercent(pct);
+                        setAttestationSecs(Math.max(1, Math.round(15 - (pct / 100) * 15)));
+                        setActiveStepText(title);
+                      });
+                      const finalInvoices = await VaultBridgeAPI.getInvoices();
+                      setInvoices(finalInvoices);
+                    }}
+                  >
+                    Verify Cross-Border Invoice
+                  </Button>
+                )}
+
+                <div className="flex items-center gap-2 w-full">
+                  <Link href={`/invoices/${inv.id}/share`} className="flex-1">
+                    <Button size="sm" variant="outline" className="w-full justify-center text-primary border-primary/20">
+                      <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                      Access
+                    </Button>
+                  </Link>
+                  <Link href={`/invoices/${inv.id}`} className="flex-1">
+                    <Button size="sm" variant="ghost" className="w-full justify-center">
+                      Details
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
 

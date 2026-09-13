@@ -131,13 +131,17 @@ export function setCachedBalances(
 // Public viem clients for reading live chain balances
 const creditcoinClient = createPublicClient({
   transport: http(
-    process.env.NEXT_PUBLIC_CREDITCOIN_RPC_URL || "https://rpc.cc3-testnet.creditcoin.network"
+    process.env.NEXT_PUBLIC_CREDITCOIN_RPC_URL || "https://rpc.cc3-testnet.creditcoin.network",
+    { timeout: 3500 }
   ),
 });
 
 const sepoliaClient = createPublicClient({
   transport: http(
-    process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/demo"
+    process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL && !process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL.includes("demo")
+      ? process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL
+      : "https://ethereum-sepolia-rpc.publicnode.com",
+    { timeout: 3500 }
   ),
 });
 

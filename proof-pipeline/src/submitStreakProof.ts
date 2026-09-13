@@ -42,7 +42,8 @@ export async function submitStreakCheckInProof(
   creditcoinRpcUrl: string,
   privateKey: string,
   streakVerifierAddress: string,
-  params: SubmitStreakCheckInParams
+  params: SubmitStreakCheckInParams,
+  overrides: ethers.Overrides = {}
 ): Promise<any> {
   const provider = new ethers.JsonRpcProvider(creditcoinRpcUrl);
   const wallet = new ethers.Wallet(privateKey, provider);
@@ -64,7 +65,8 @@ export async function submitStreakCheckInProof(
     continuityProof,
     params.streakId,
     params.dayIndex,
-    params.user
+    params.user,
+    overrides
   );
 
   const receipt = await tx.wait();
@@ -79,7 +81,8 @@ export async function submitStreakAbsenceBreakProof(
   creditcoinRpcUrl: string,
   privateKey: string,
   streakVerifierAddress: string,
-  params: SubmitStreakBreakParams
+  params: SubmitStreakBreakParams,
+  overrides: ethers.Overrides = {}
 ): Promise<any> {
   const provider = new ethers.JsonRpcProvider(creditcoinRpcUrl);
   const wallet = new ethers.Wallet(privateKey, provider);
@@ -100,7 +103,8 @@ export async function submitStreakAbsenceBreakProof(
     merkleProof,
     continuityProof,
     params.streakId,
-    params.missedDayIndex
+    params.missedDayIndex,
+    overrides
   );
 
   const receipt = await tx.wait();

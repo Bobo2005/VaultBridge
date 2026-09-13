@@ -5,6 +5,31 @@
 ## Latest Session
 **Status:** **100% Complete & Submission-Ready for BUIDL CTC 2026 Fall Hackathon**
 
+### 💎 Live Sepolia Network Integration & Full Dummy Data Purge
+1. **Real On-Chain Transactions on Ethereum Sepolia**:
+   - **`InvoiceRegistrar.sol` (`0x7B88F2D4435BB909196F9e54c8bD0Cc02b36b021`)**: Broadcast live transaction issuing real invoice `INV-SEP-001` in block `#11691999`, Tx Hash: [`0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b`](https://sepolia.etherscan.io/tx/0xe1f5cb5a7ca82a8af42198fa747400d8f9e872b41d7d6a0883807a26de2d8a5b) (10.0 ETH face value, debtor `0x112233445566778899AabbcCDDeEFF0011223344`).
+   - **`StreakRegistry.sol` (`0x870a9D0207A2c72A292386848b33B3F4aBA8E9ce`)**: Broadcast live streak creation `STRK-SEP-001` (Tx: [`0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2`](https://sepolia.etherscan.io/tx/0x7d7ce5a932be78f6ac9fedbf1ec4f9d3a9ab648fb6613a23ec159ec282d3fac2)) and live daily check-in (Tx: [`0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37`](https://sepolia.etherscan.io/tx/0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37)) titled *"Ethereum Sepolia Daily Verifier"*.
+2. **Purge of All Mock / Fake Invoices & Dummy Data**:
+   - Removed hardcoded fake invoices (`INV-2026-001` to `005`) that contained non-existent dummy transaction hashes.
+   - Removed fake loans (`LOAN-8831`, `LOAN-8829`, `LOAN-8825`).
+   - Replaced default streak listings with verified on-chain streak data and live Etherscan links.
+   - Migrated client-side storage keys to `_v3` (`vaultbridge_invoices_ledger_v3`, `vaultbridge_streaks_ledger_v3`) preventing stale browser cache contamination.
+3. **Dynamic Real-Time Sepolia Block Querying**:
+   - Implemented `getSepoliaBlockNumber()` in `frontend/lib/contracts.ts` to poll live block height directly from Sepolia RPC.
+   - Replaced static expired block offsets (`11566330`) with dynamic future blocks (`curBlock + BigInt(5000)`).
+   - Replaced BigInt literal syntax `5000n` with `BigInt(5000)` to ensure universal bundler / ES target compatibility.
+4. **Contract ABI Alignment & Stale File Cleanup**:
+   - Updated `INVOICE_REGISTRAR_ABI` to match the exact Solidity method signatures on Sepolia (`invoices` returns `amount, debtor, dueDateBlock, paid, sourceChainTxHash`, non-payable `payInvoice`).
+   - Removed stale, tracked `frontend/lib/contracts.js` which was overriding `contracts.ts` during Next.js builds.
+5. **Mobile & Tablet Responsive UI Polish**:
+   - **Adaptive Dual-View Layouts**: Replaced rigid horizontal table scroll with dual-view rendering (`hidden md:block` desktop table + `md:hidden` mobile card lists) on `/invoices`, `/dashboard`, `/loans`, and `StreakLeaderboard.tsx`.
+   - **Floating Toolbar Collision Prevention**: Offset `JudgeSandboxBar.tsx` to `bottom-16 lg:bottom-4` with collapsed pill state on mobile (`< 1024px`) so it never collides with fixed bottom mobile navigation bar.
+   - **Safe Viewport Scroll Padding**: Added `pb-32 lg:pb-8` to `<main>` in `AppShell.tsx`, allowing full scroll clearance above mobile bottom navbars on iOS/Android.
+   - **Responsive Permission Matrix**: Optimized access control simulator buttons in `/invoices/[id]` to adapt smoothly across compact viewports.
+6. **Clean Verification**:
+   - `npm run build` compiled all **13 / 13 routes cleanly with zero errors**.
+   - `npx hardhat test` passed **51 / 51 tests (100%)**.
+
 ---
 
 ## ⚡ Full Platform Capabilities Across Phases 1, 2 & 3

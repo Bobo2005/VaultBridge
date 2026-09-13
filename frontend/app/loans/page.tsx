@@ -229,56 +229,113 @@ export default function LoansPage() {
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-bg/80 border-b border-border">
-              <tr className="text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
-                <th className="py-3.5 px-6">Credit ID</th>
-                <th className="py-3.5 px-4">Collateral Receivable</th>
-                <th className="py-3.5 px-4">Principal Drawn</th>
-                <th className="py-3.5 px-4">Currency</th>
-                <th className="py-3.5 px-4">Advance Rate</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
+        {loans.length === 0 ? (
+          <div className="p-8 text-center space-y-2">
+            <Coins className="w-8 h-8 text-ink-secondary/40 mx-auto" />
+            <p className="text-sm font-semibold text-ink">No active credit positions found</p>
+            <p className="text-xs text-ink-secondary max-w-sm mx-auto">
+              Verified receivables can draw working capital above with instant on-chain disbursement.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View (md+) */}
+            <div className="overflow-x-auto hidden md:block">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-bg/80 border-b border-border">
+                  <tr className="text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
+                    <th className="py-3.5 px-6">Credit ID</th>
+                    <th className="py-3.5 px-4">Collateral Receivable</th>
+                    <th className="py-3.5 px-4">Principal Drawn</th>
+                    <th className="py-3.5 px-4">Currency</th>
+                    <th className="py-3.5 px-4">Advance Rate</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {loans.map((loan) => (
+                    <tr key={loan.id} className="hover:bg-bg/50 transition-colors">
+                      <td className="py-4 px-6 font-bold text-ink">
+                        {loan.id}
+                        <p className="text-[10px] text-ink-secondary font-mono">Credit Facility</p>
+                      </td>
+
+                      <td className="py-4 px-4 font-semibold text-primary">
+                        <Link href={`/invoices/${loan.invoiceId}`} className="hover:underline inline-flex items-center gap-1">
+                          <span>{loan.invoiceId}</span>
+                          <ArrowUpRight className="w-3 h-3" />
+                        </Link>
+                        <p className="text-[10px] text-ink-secondary font-mono">Maturity Block #{loan.dueDateBlock.toLocaleString()}</p>
+                      </td>
+
+                      <td className="py-4 px-4 font-bold text-ink">
+                        ${loan.principalUsd.toLocaleString()}
+                        <p className="text-[10px] text-ink-secondary font-normal">APR: {loan.apr}% Fixed</p>
+                      </td>
+
+                      <td className="py-4 px-4 font-mono font-bold text-ink">
+                        <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-[10px]">
+                          {loan.currency}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <span className="font-bold text-primary">{loan.ltvPercent}% Advance</span>
+                        <div className="w-20 bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                          <div className="bg-primary h-full rounded-full" style={{ width: `${loan.ltvPercent}%` }}></div>
+                        </div>
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            loan.status === "Active"
+                              ? "bg-blue-50 text-blue-700 border border-blue-200"
+                              : loan.status === "Repaid"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-rose-50 text-rose-700 border border-rose-200"
+                          }`}
+                        >
+                          {loan.status === "Active" ? "Active Line" : loan.status === "Repaid" ? "Settled" : "Defaulted"}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {loan.status === "Active" && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleOpenRepay(loan)}
+                            >
+                              Authorize & Repay Loan
+                            </Button>
+                          )}
+                          <Link href={`/invoices/${loan.invoiceId}`}>
+                            <Button size="sm" variant="ghost">
+                              Inspect
+                            </Button>
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards View (< md) */}
+            <div className="md:hidden divide-y divide-border/60">
               {loans.map((loan) => (
-                <tr key={loan.id} className="hover:bg-bg/50 transition-colors">
-                  <td className="py-4 px-6 font-bold text-ink">
-                    {loan.id}
-                    <p className="text-[10px] text-ink-secondary font-mono">Credit Facility</p>
-                  </td>
-
-                  <td className="py-4 px-4 font-semibold text-primary">
-                    <Link href={`/invoices/${loan.invoiceId}`} className="hover:underline inline-flex items-center gap-1">
-                      <span>{loan.invoiceId}</span>
-                      <ArrowUpRight className="w-3 h-3" />
-                    </Link>
-                    <p className="text-[10px] text-ink-secondary font-mono">Maturity Block #{loan.dueDateBlock.toLocaleString()}</p>
-                  </td>
-
-                  <td className="py-4 px-4 font-bold text-ink">
-                    ${loan.principalUsd.toLocaleString()}
-                    <p className="text-[10px] text-ink-secondary font-normal">APR: {loan.apr}% Fixed</p>
-                  </td>
-
-                  <td className="py-4 px-4 font-mono font-bold text-ink">
-                    <span className="px-2 py-0.5 rounded-md bg-primary-tint text-primary text-[10px]">
-                      {loan.currency}
-                    </span>
-                  </td>
-
-                  <td className="py-4 px-4">
-                    <span className="font-bold text-primary">{loan.ltvPercent}% Advance</span>
-                    <div className="w-20 bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
-                      <div className="bg-primary h-full rounded-full" style={{ width: `${loan.ltvPercent}%` }}></div>
+                <div key={loan.id} className="p-4 space-y-3 hover:bg-bg/30 transition-colors">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="font-bold text-ink text-sm">{loan.id}</span>
+                      <p className="text-[10px] text-ink-secondary font-mono">Credit Facility</p>
                     </div>
-                  </td>
-
-                  <td className="py-4 px-4">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         loan.status === "Active"
                           ? "bg-blue-50 text-blue-700 border border-blue-200"
                           : loan.status === "Repaid"
@@ -288,31 +345,57 @@ export default function LoansPage() {
                     >
                       {loan.status === "Active" ? "Active Line" : loan.status === "Repaid" ? "Settled" : "Defaulted"}
                     </span>
-                  </td>
+                  </div>
 
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {loan.status === "Active" && (
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handleOpenRepay(loan)}
-                        >
-                          Authorize & Repay Loan
-                        </Button>
-                      )}
-                      <Link href={`/invoices/${loan.invoiceId}`}>
-                        <Button size="sm" variant="ghost">
-                          Inspect
-                        </Button>
-                      </Link>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 bg-bg rounded-lg border border-border/60">
+                      <span className="text-[10px] text-ink-secondary block">Principal Drawn</span>
+                      <span className="font-bold text-ink text-sm">${loan.principalUsd.toLocaleString()}</span>
+                      <span className="text-[10px] text-ink-secondary block mt-0.5">{loan.currency} • APR {loan.apr}%</span>
                     </div>
-                  </td>
-                </tr>
+
+                    <div className="p-2.5 bg-bg rounded-lg border border-border/60">
+                      <span className="text-[10px] text-ink-secondary block">Collateral Receivable</span>
+                      <Link href={`/invoices/${loan.invoiceId}`} className="font-bold text-primary inline-flex items-center gap-1 hover:underline">
+                        <span>{loan.invoiceId}</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </Link>
+                      <span className="text-[10px] text-ink-secondary block mt-0.5">#{loan.dueDateBlock.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-ink-secondary">Advance Rate</span>
+                      <span className="font-bold text-primary">{loan.ltvPercent}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-primary h-full rounded-full" style={{ width: `${loan.ltvPercent}%` }}></div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between gap-2">
+                    <Link href={`/invoices/${loan.invoiceId}`} className="flex-1">
+                      <Button size="sm" variant="ghost" className="w-full">
+                        Inspect
+                      </Button>
+                    </Link>
+                    {loan.status === "Active" && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="flex-1"
+                        onClick={() => handleOpenRepay(loan)}
+                      >
+                        Authorize & Repay
+                      </Button>
+                    )}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </Card>
 
       {/* Modals */}

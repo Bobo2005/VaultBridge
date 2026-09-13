@@ -40,45 +40,21 @@ interface HabitStreak {
   creditcoinHeight: number;
 }
 
-const STREAKS_STORAGE_KEY = "vaultbridge_streaks_ledger_v2";
+const STREAKS_STORAGE_KEY = "vaultbridge_streaks_ledger_v3";
 
 const DEFAULT_STREAKS: HabitStreak[] = [
   {
-    id: "STRK-2026-001",
-    title: "Daily Smart Contract Security Audit",
+    id: "STRK-SEP-001",
+    title: "Ethereum Sepolia Daily Verifier",
     category: "Code",
-    currentStreak: 14,
-    longestStreak: 18,
-    lastCheckInDay: 14,
-    lastCheckInDate: "Today, 08:30 AM",
+    currentStreak: 1,
+    longestStreak: 1,
+    lastCheckInDay: 1,
+    lastCheckInDate: "Today (Sepolia Block #11692004)",
     isCheckedInToday: true,
-    sepoliaTxHash: "0x3f4a9b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a",
+    sepoliaTxHash: "0x1ff751198acc721a2624b3030e4495560e2dbbacaf5618a4ee9a3033201b0c37",
     creditcoinHeight: 104250,
   },
-  {
-    id: "STRK-2026-002",
-    title: "Cross-Chain USC Relayer Verification",
-    category: "DeFi",
-    currentStreak: 7,
-    longestStreak: 7,
-    lastCheckInDay: 7,
-    lastCheckInDate: "Yesterday",
-    isCheckedInToday: false,
-    sepoliaTxHash: "0x8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b",
-    creditcoinHeight: 104190,
-  },
-  {
-    id: "STRK-2026-003",
-    title: "5km Morning Cardio & Habit Tracking",
-    category: "Fitness",
-    currentStreak: 3,
-    longestStreak: 21,
-    lastCheckInDay: 3,
-    lastCheckInDate: "Today, 06:15 AM",
-    isCheckedInToday: true,
-    sepoliaTxHash: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
-    creditcoinHeight: 104080,
-  }
 ];
 
 export default function StreaksPage() {
@@ -202,7 +178,7 @@ export default function StreaksPage() {
       }
     }
 
-    const newId = `STRK-2026-${String(streaks.length + 1).padStart(3, "0")}`;
+    const newId = `STRK-SEP-${String(streaks.length + 1).padStart(3, "0")}`;
     const newStreak: HabitStreak = {
       id: newId,
       title: newTitle.trim(),

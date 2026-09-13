@@ -27,12 +27,10 @@ export const StreakLeaderboard: React.FC<StreakLeaderboardProps> = ({
   const [filter, setFilter] = useState<"all" | "active">("all");
 
   const defaultLeaderboard: StreakLeaderboardItem[] = [
-    { rank: 1, user: "0x789d38c11e3b6a908871abf48820c29f6ca291c1", habit: "Daily Smart Contract Audit", currentStreak: 42, longestStreak: 42, badgesCount: 3 },
-    { rank: 2, user: "0x3c4dbb9382109827371982739812739182731c2d", habit: "Morning 10km Run", currentStreak: 30, longestStreak: 35, badgesCount: 2 },
-    { rank: 3, user: "0x8f7a982173918273918273918273918273916f7a", habit: "Daily Github Commit", currentStreak: 21, longestStreak: 21, badgesCount: 2 },
-    { rank: 4, user: currentUserAddress || "0x9876543210fedcba9876543210fedcba98765432", habit: "Cross-Chain Lending Checks", currentStreak: 14, longestStreak: 18, badgesCount: 1, isCurrentUser: true },
-    { rank: 5, user: "0x1234567890abcdef1234567890abcdef12345678", habit: "Reading 30 Mins", currentStreak: 9, longestStreak: 12, badgesCount: 1 },
-    { rank: 6, user: "0x55aa33bb11cc22dd33ee44ff55aa66bb77cc88dd", habit: "Meditation & Breathwork", currentStreak: 7, longestStreak: 7, badgesCount: 1 },
+    { rank: 1, user: "0xe5Fa8f2f4152b51a4Ef9659D8f9b7811a17C9676", habit: "Ethereum Sepolia Daily Verifier", currentStreak: 1, longestStreak: 1, badgesCount: 1 },
+    ...(currentUserAddress && currentUserAddress.toLowerCase() !== "0xe5fa8f2f4152b51a4ef9659d8f9b7811a17c9676"
+      ? [{ rank: 2, user: currentUserAddress, habit: "Cross-Chain Habit Tracking", currentStreak: 1, longestStreak: 1, badgesCount: 1, isCurrentUser: true }]
+      : []),
   ];
 
   const items = filter === "active" ? defaultLeaderboard.filter((i) => i.currentStreak > 0) : defaultLeaderboard;
@@ -78,8 +76,8 @@ export const StreakLeaderboard: React.FC<StreakLeaderboardProps> = ({
         </div>
       </div>
 
-      {/* Leaderboard Table */}
-      <div className="overflow-x-auto">
+      {/* Leaderboard Desktop Table (md+) */}
+      <div className="overflow-x-auto hidden md:block">
         <table className="w-full text-left text-xs">
           <thead className="bg-bg/80 border-b border-border text-ink-secondary uppercase font-semibold text-[11px] tracking-wider">
             <tr>
@@ -166,6 +164,77 @@ export const StreakLeaderboard: React.FC<StreakLeaderboardProps> = ({
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Leaderboard Mobile Cards View (< md) */}
+      <div className="md:hidden divide-y divide-border/60">
+        {items.map((item) => {
+          const isFirst = item.rank === 1;
+          const isSecond = item.rank === 2;
+          const isThird = item.rank === 3;
+
+          return (
+            <div
+              key={item.rank}
+              className={`p-4 space-y-3 ${item.isCurrentUser ? "bg-primary-tint/20" : "hover:bg-bg/30"}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {isFirst ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold">
+                      🥇 #1
+                    </span>
+                  ) : isSecond ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-300 text-xs font-bold">
+                      🥈 #2
+                    </span>
+                  ) : isThird ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold">
+                      🥉 #3
+                    </span>
+                  ) : (
+                    <span className="text-ink-secondary font-mono text-xs font-bold px-1">#{item.rank}</span>
+                  )}
+
+                  <div className="flex items-center gap-1">
+                    <span className="font-mono text-xs font-semibold text-ink">
+                      {item.user.slice(0, 6)}...{item.user.slice(-4)}
+                    </span>
+                    {item.isCurrentUser && (
+                      <span className="px-1.5 py-0.2 rounded bg-primary text-white text-[9px] font-bold">
+                        YOU
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold">
+                  <Award className="w-3 h-3" />
+                  <span>{item.badgesCount} {item.badgesCount === 1 ? "Badge" : "Badges"}</span>
+                </span>
+              </div>
+
+              <div className="text-xs text-ink font-medium">
+                {item.habit}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 bg-bg rounded-lg border border-border/50 flex items-center justify-between">
+                  <span className="text-[11px] text-ink-secondary">Current</span>
+                  <div className="inline-flex items-center gap-1 font-bold text-amber-600">
+                    <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                    <span>{item.currentStreak}d</span>
+                  </div>
+                </div>
+
+                <div className="p-2 bg-bg rounded-lg border border-border/50 flex items-center justify-between">
+                  <span className="text-[11px] text-ink-secondary">Record</span>
+                  <span className="font-bold text-ink">{item.longestStreak}d</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </Card>
   );
